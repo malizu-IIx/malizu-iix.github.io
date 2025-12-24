@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MALizU_IIX - Full Stack Junior Developer</title>
+    <meta name="description"
+        content="พอร์ตโฟลิโอของ MALizU_IIX - Full Stack Junior Developer ผู้หลงใหลในการสร้างสรรค์เว็บแอปพลิเคชันที่ทันสมัย">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;700;800&display=swap"
+        rel="stylesheet">
+
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-glow"></div>
+
+    <header class="glass-header">
+        <div class="container nav-container">
+            <a href="#" class="logo">MALizU_IIX<span class="dot">.</span></a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#about">เกี่ยวกับฉัน</a></li>
+                    <li><a href="#projects">ผลงาน</a></li>
+                    <li><a href="#contact">ติดต่อ</a></li>
+                </ul>
+                <button class="mobile-menu-btn" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section">
+            <div class="container hero-content">
+
+                <h1 class="hero-title slide-up">MALizU_IIX</h1>
+                <h2 class="hero-subtitle slide-up delay-1">Full Stack Junior Developer</h2>
+
+                <div class="hero-cta fade-in delay-3">
+                    <a href="#projects" class="btn btn-primary">ดูผลงานของผม</a>
+                    <a href="#contact" class="btn btn-outline">ติดต่อพูดคุย</a>
+                </div>
+            </div>
+            <div class="hero-visual fade-in delay-2">
+                <div class="code-block-decoration">
+                    <pre><code><span class="keyword">const</span> <span class="variable">developer</span> = {
+  <span class="property">name</span>: <span class="string">'MALizU_IIX'</span>,
+  <span class="property">role</span>: <span class="string">'Full Stack'</span>,
+  <span class="property">skills</span>: [
+    <span class="string">'React'</span>, <span class="string">'Node.js'</span>,
+    <span class="string">'SQL'</span>, <span class="string">'Design'</span>
+  ]
+};</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section about-section">
+            <div class="container">
+                <div class="section-header fade-in-scroll">
+                    <h2 class="section-title">เกี่ยวกับฉัน</h2>
+                    <span class="section-subtitle">Who I Am</span>
+                </div>
+
+                <div class="about-grid">
+                    <div class="about-text fade-in-scroll">
+                        <p>
+                            ผมเป็นนักพัฒนา Full Stack Junior
+                            ที่มีความหลงใหลในการสร้างเว็บแอปพลิเคชันที่ใช้งานง่ายและสวยงาม
+                            ผมเชื่อในการเขียนโค้ดที่สะอาดและการออกแบบที่ใส่ใจผู้ใช้งานเสมอ
+                        </p>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-number">1+</span>
+                                <span class="stat-label">ปีประสบการณ์</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">10+</span>
+                                <span class="stat-label">โปรเจกต์</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="skills-container fade-in-scroll delay-1">
+                        <div class="skill-category">
+                            <h3>Frontend</h3>
+                            <div class="skill-tags">
+                                <span>HTML5</span>
+                                <span>CSS3</span>
+                                <span>JavaScript</span>
+                                <span>React</span>
+                                <span>Tailwind</span>
+                            </div>
+                        </div>
+                        <div class="skill-category">
+                            <h3>Backend</h3>
+                            <div class="skill-tags">
+                                <span>Node.js</span>
+                                <span>Express</span>
+                                <span>SQL</span>
+                                <span>MongoDB</span>
+                                <span>API Design</span>
+                            </div>
+                        </div>
+                        <div class="skill-category">
+                            <h3>Tools</h3>
+                            <div class="skill-tags">
+                                <span>Git</span>
+                                <span>VS Code</span>
+                                <span>Figma</span>
+                                <span>Docker</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="section projects-section">
+            <div class="container">
+                <div class="section-header fade-in-scroll">
+                    <h2 class="section-title">ผลงานของผม</h2>
+                    <span class="section-subtitle">Featured Projects</span>
+                </div>
+
+                <div class="projects-grid">
+                    <!-- Project Card 1 -->
+                    <article class="project-card fade-in-scroll">
+                        <div class="project-image">
+                            <!-- Placeholder for project image -->
+                            <div class="img-placeholder gradient-1"></div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">E-Commerce Dashboard</h3>
+                            <p class="project-desc">ระบบจัดการร้านค้าออนไลน์ครบวงจร พร้อมระบบวิเคราะห์ยอดขายแบบ
+                                Real-time</p>
+                            <ul class="project-tech">
+                                <li>React</li>
+                                <li>Node.js</li>
+                                <li>MongoDB</li>
+                            </ul>
+                            <div class="project-links">
+                                <a href="#" class="link-item">Demo <span class="arrow">→</span></a>
+                                <a href="#" class="link-item">Code <span class="arrow">→</span></a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Project Card 2 -->
+                    <article class="project-card fade-in-scroll delay-1">
+                        <div class="project-image">
+                            <!-- Placeholder for project image -->
+                            <div class="img-placeholder gradient-2"></div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Social Media App</h3>
+                            <p class="project-desc">แอปพลิเคชันโซเชียลมีเดียที่เน้นการแชร์รูปภาพและเรื่องราวประจำวัน</p>
+                            <ul class="project-tech">
+                                <li>Vue.js</li>
+                                <li>Firebase</li>
+                                <li>Tailwind</li>
+                            </ul>
+                            <div class="project-links">
+                                <a href="#" class="link-item">Demo <span class="arrow">→</span></a>
+                                <a href="#" class="link-item">Code <span class="arrow">→</span></a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Project Card 3 -->
+                    <article class="project-card fade-in-scroll delay-2">
+                        <div class="project-image">
+                            <!-- Placeholder for project image -->
+                            <div class="img-placeholder gradient-3"></div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Task Management</h3>
+                            <p class="project-desc">เครื่องมือช่วยจัดลำดับความสำคัญของงานและติดตามความคืบหน้าของทีม</p>
+                            <ul class="project-tech">
+                                <li>Next.js</li>
+                                <li>PostgreSQL</li>
+                                <li>Prisma</li>
+                            </ul>
+                            <div class="project-links">
+                                <a href="#" class="link-item">Demo <span class="arrow">→</span></a>
+                                <a href="#" class="link-item">Code <span class="arrow">→</span></a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section contact-section">
+            <div class="container">
+                <div class="contact-wrapper fade-in-scroll">
+                    <div class="contact-info">
+                        <h2 class="contact-title">มาร่วมงานกันไหมครับ?</h2>
+                        <p class="contact-text">
+                            ผมกำลังมองหาโอกาสใหม่ๆ และความท้าทาย หากคุณสนใจหรือมีคำถาม
+                            สามารถทักมาคุยกันได้เลยครับ
+                        </p>
+                        <a href="mailto:contact@malizu.dev" class="email-link">contact@malizu.dev</a>
+                        <div class="social-links">
+                            <a href="https://discord.com/users/741501421936967722" class="social-icon"
+                                aria-label="Discord" target="_blank">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="#5865F2">
+                                    <path
+                                        d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.086 2.157 2.419 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.086 2.157 2.419 0 1.334-.946 2.419-2.157 2.419z" />
+                                </svg>
+                            </a>
+                            <a href="https://www.instagram.com/0xygen_ox1de/" class="social-icon" aria-label="Instagram"
+                                target="_blank">
+                                <i class="fa-brands fa-instagram"></i>
+                            </a>
+                            <a href="https://github.com/malizu-IIx" class="social-icon" aria-label="GitHub"
+                                target="_blank">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="white">
+                                    <path
+                                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <p>&copy; 2025 MALizU_IIX. All rights reserved.</p>
+            <p>Designed & Built with <span class="heart">♥</span></p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
