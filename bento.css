@@ -1,0 +1,67 @@
+:root {
+    --bento-gap: 1.5rem;
+    --bento-padding: 1.5rem;
+}
+
+main.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(200px, auto);
+    gap: var(--bento-gap);
+    padding: var(--bento-padding);
+}
+
+.bento-item {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: var(--transition);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.bento-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Define grid areas for each section */
+#home { grid-area: home; }
+#about { grid-area: about; }
+#projects { grid-area: projects; }
+#contact { grid-area: contact; }
+#scrollytelling { grid-area: scrollytelling; }
+
+@media (min-width: 1024px) {
+    main.bento-grid {
+        grid-template-areas:
+            "home home home scrollytelling"
+            "about about projects projects"
+            "contact contact contact contact";
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    main.bento-grid {
+        grid-template-areas:
+            "home home"
+            "scrollytelling scrollytelling"
+            "about projects"
+            "contact contact";
+    }
+}
+
+@media (max-width: 767px) {
+    main.bento-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "home"
+            "scrollytelling"
+            "about"
+            "projects"
+            "contact";
+    }
+}
