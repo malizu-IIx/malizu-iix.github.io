@@ -48,7 +48,7 @@
     <main class="bento-grid">
         <!-- Home Section -->
         <section id="home" class="home-section bento-item">
-            <div class="container home-content">
+            <div class="home-main-content">
                 <div class="home-text">
                     <h1 class="home-title">MALizU_IIX</h1>
                     <h2 class="home-subtitle slide-up delay-1">Junior Full-Stack Developer</h2>
@@ -60,7 +60,19 @@
             </div>
         </section>
 
-
+        <!-- Discord Status Section -->
+        <section id="discord" class="discord-section bento-item">
+            <div class="discord-profile-card">
+                <div class="discord-avatar-wrapper">
+                    <img src="profile.png" alt="Discord Avatar" id="discord-avatar" class="discord-avatar-img">
+                    <span id="discord-status-dot" class="status-dot"></span>
+                </div>
+                <div class="discord-text-info">
+                    <span class="discord-username" id="discord-username-status">MALizU_IIX</span>
+                    <span class="discord-status-text" id="discord-status">Loading...</span>
+                </div>
+            </div>
+        </section>
 
         <!-- About Section -->
         <section id="about" class="section about-section bento-item">
@@ -70,7 +82,7 @@
                     <span class="section-subtitle">Who I Am</span>
                 </div>
 
-                <div class="bento-grid">
+                <div class="bento-grid about-bento-grid">
                     <div class="bento-item bento-about-text fade-in-scroll">
                         <h3>About Me</h3>
                         <p>
@@ -82,10 +94,6 @@
                             <div class="stat-item">
                                 <span class="stat-number">1+</span>
                                 <span class="stat-label">Years of Experience</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">10+</span>
-                                <span class="stat-label">Projects Completed</span>
                             </div>
                         </div>
                     </div>
@@ -173,19 +181,15 @@
                             <!-- Discord Profile Display -->
                             <a href="https://discord.com/users/741501421936967722" target="_blank" class="social-profile-link">
                                 <div class="social-profile-display discord-style">
-                                    <img src="profile.png" alt="Discord Avatar" id="discord-avatar" class="social-avatar">
                                     <i class="fab fa-discord social-icon-main"></i>
                                     <span class="social-username" id="discord-username">MALizU_IIX</span>
-                                    <span class="social-status" id="discord-status">Loading...</span>
                                 </div>
                             </a>
                             <!-- Instagram Profile Display -->
                             <a href="https://www.instagram.com/0xygen_ox1de/" target="_blank" class="social-profile-link">
                                 <div class="social-profile-display instagram-style">
-                                    <img src="profile.png" alt="Instagram Avatar" class="social-avatar">
                                     <i class="fab fa-instagram social-icon-main"></i>
                                     <span class="social-username">0xygen_ox1de</span>
-                                    <span class="social-status status-online">Active</span>
                                 </div>
                             </a>
                             <!-- GitHub Profile Display -->
@@ -193,7 +197,6 @@
                                 <div class="social-profile-display github-style">
                                     <i class="fab fa-github social-icon-main"></i>
                                     <span class="social-username">malizu-IIx</span>
-                                    <span class="social-status status-online">Active</span>
                                 </div>
                             </a>
                         </div>

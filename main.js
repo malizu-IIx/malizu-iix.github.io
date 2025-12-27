@@ -68,13 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log("MALizU_IIX Portfolio Loaded Successfully!");
 
-    // Lanyard Discord Status
+    // Discord Status Update
     const DISCORD_ID = '741501421936967722';
-    const lanyardUrl = `https://api.lanyard.rest/v1/users/${DISCORD_ID}`;
+    const discordApiUrl = `https://api.ame.nattapat2871.me/v1/user/${DISCORD_ID}`;
 
     const discordAvatar = document.getElementById('discord-avatar');
-    const discordUsername = document.getElementById('discord-username');
-    const discordStatus = document.getElementById('discord-status');
+    const discordUsername = document.getElementById('discord-username-status');
+    const discordStatusText = document.getElementById('discord-status');
+    const discordStatusDot = document.getElementById('discord-status-dot');
 
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -82,26 +83,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function updateDiscordStatus() {
         try {
-            const response = await fetch(lanyardUrl);
+            const response = await fetch(discordApiUrl);
             if (!response.ok) {
-                throw new Error('Lanyard API request failed');
+                throw new Error('Discord API request failed');
             }
-            const { data } = await response.json();
+            const result = await response.json();
 
-            if (data) {
+            if (result.ame && result.ame.user) {
+                const userData = result.ame.user;
+                const ameData = result.ame;
+
                 // Update Avatar
-                if (data.discord_user.avatar) {
-                    discordAvatar.src = `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${data.discord_user.avatar}.webp`;
+                if (userData.avatar) {
+                    discordAvatar.src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.webp`;
+                } else {
+                    // Fallback to default Discord avatar if none is provided
+                    const defaultAvatarNum = (userData.discriminator === "0") ? Math.abs(userData.id >> 22) % 6 : userData.discriminator % 5;
+                    discordAvatar.src = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarNum}.png`;
                 }
 
+
                 // Update Username
-                discordUsername.textContent = data.discord_user.username;
+                discordUsername.textContent = userData.global_name || userData.username;
 
                 // Update Status
-                let statusText = capitalizeFirstLetter(data.discord_status);
+                let statusText = capitalizeFirstLetter(ameData.discord_status);
                 let statusColorClass = '';
 
-                switch (data.discord_status) {
+                switch (ameData.discord_status) {
                     case 'online':
                         statusColorClass = 'status-online';
                         break;
@@ -115,78 +124,42 @@ document.addEventListener('DOMContentLoaded', () => {
                         statusColorClass = 'status-offline';
                 }
                 
-                if (data.activities && data.activities.length > 0) {
-                    const activity = data.activities.find(act => act.type === 0);
-                    if (activity) {
-                        statusText = `Playing ${activity.name}`;
+                // Prioritize activity status if available
+                if (ameData.activities && ameData.activities.length > 0) {
+                    // Find a "Playing" activity (type 0) or a custom status (type 4)
+                    const playingActivity = ameData.activities.find(act => act.type === 0);
+                    const customStatusActivity = ameData.activities.find(act => act.type === 4);
+
+                    if (playingActivity && playingActivity.name) {
+                        let activityDetails = `Playing ${playingActivity.name}`;
+                        if(playingActivity.details) {
+                            activityDetails += `: ${playingActivity.details}`;
+                        }
+                        statusText = activityDetails;
+
+                    } else if (customStatusActivity && customStatusActivity.state) {
+                        statusText = customStatusActivity.state;
                     }
                 }
                 
-                discordStatus.textContent = statusText;
-                discordStatus.className = `discord-status ${statusColorClass}`;
+                discordStatusText.textContent = statusText;
+                if (discordStatusDot) {
+                    discordStatusDot.className = `status-dot ${statusColorClass}`;
+                }
+            } else {
+                discordStatusText.textContent = 'Data Unavailable';
             }
         } catch (error) {
             console.error('Error fetching Discord status:', error);
-            discordStatus.textContent = 'Status Unavailable';
+            discordStatusText.textContent = 'Status Unavailable';
         }
     }
 
-    // Initial fetch and then update via WebSocket
+    // Initial fetch
     updateDiscordStatus();
 
-    // Bonus: WebSocket for real-time updates
-    const lanyardSocket = new WebSocket('wss://api.lanyard.rest/socket');
-    
-    lanyardSocket.onopen = () => {
-        lanyardSocket.send(JSON.stringify({
-            op: 2,
-            d: { subscribe_to_id: DISCORD_ID }
-        }));
-    };
-
-    lanyardSocket.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.t === 'INIT_STATE' || message.t === 'PRESENCE_UPDATE') {
-            const data = message.d;
-             if (data) {
-                // Update Avatar
-                if (data.discord_user.avatar) {
-                    discordAvatar.src = `https://cdn.discordapp.com/avatars/${data.discord_user.id}/${data.discord_user.avatar}.webp`;
-                }
-
-                // Update Username
-                discordUsername.textContent = data.discord_user.username;
-
-                // Update Status
-                let statusText = capitalizeFirstLetter(data.discord_status);
-                 let statusColorClass = '';
-
-                switch (data.discord_status) {
-                    case 'online':
-                        statusColorClass = 'status-online';
-                        break;
-                    case 'idle':
-                        statusColorClass = 'status-idle';
-                        break;
-                    case 'dnd':
-                        statusColorClass = 'status-dnd';
-                        break;
-                    default:
-                        statusColorClass = 'status-offline';
-                }
-
-                if (data.activities && data.activities.length > 0) {
-                    const activity = data.activities.find(act => act.type === 0);
-                    if (activity) {
-                        statusText = `Playing ${activity.name}`;
-                    }
-                }
-                
-                discordStatus.textContent = statusText;
-                discordStatus.className = `discord-status ${statusColorClass}`;
-            }
-        }
-    };
+    // Refresh every 30 seconds
+    setInterval(updateDiscordStatus, 30000);
 
     // Music Player Logic
     const music = document.getElementById('theme-music');
