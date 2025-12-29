@@ -1,227 +1,513 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MALizU_IIX - Junior Full-Stack Developer</title>
-    <meta name="description" content="พอร์ตโฟลิโอของ MALizU_IIX - Junior Full-Stack Developer ผู้หลงใหลในการสร้างสรรค์เว็บแอปพลิเคชันที่ทันสมัย">
-
-    <!-- Google Fonts -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MALizU_IIX | Bento Portfolio</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --bg-color: #0f0f11;
+            --card-bg: rgba(20, 20, 25, 0.4);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-sub: #d1d1d1;
+            --accent: #EFACAA; 
+            --accent-glow: rgba(239, 172, 170, 0.6);
+            --noise-pattern: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E');
+        }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        @media (pointer: fine) {
+            * { cursor: none; }
+            .cursor-dot, .cursor-outline { display: block; }
+        }
+        @media (pointer: coarse) {
+            .cursor-dot, .cursor-outline { display: none; }
+        }
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Outfit', 'Noto Sans Thai', 'Noto Sans JP', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+            font-size: 1.25rem;
+        }
 
-    <link rel="stylesheet" href="style.css">
+        /* --- VIDEO BACKGROUND --- */
+        #bg-video {
+            position: fixed; right: 0; bottom: 0;
+            min-width: 100%; min-height: 100%;
+            z-index: -2; object-fit: cover;
+        }
+        .video-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px); z-index: -1;
+        }
+
+        /* --- CUSTOM CURSOR --- */
+        .cursor-dot, .cursor-outline {
+            position: fixed; top: 0; left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%; z-index: 9999;
+            pointer-events: none;
+        }
+        .cursor-dot { width: 8px; height: 8px; background-color: var(--accent); }
+        .cursor-outline {
+            width: 40px; height: 40px;
+            border: 2px solid var(--accent);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+        body:hover .cursor-outline.hovered {
+            width: 60px; height: 60px;
+            background-color: rgba(239, 172, 170, 0.1);
+            border-color: transparent;
+        }
+
+        /* --- PRELOADER --- */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #050505; z-index: 9990;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; text-align: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        .loader-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; width: 100%; }
+        .loader-logo { 
+            width: 200px; max-width: 50%; margin: 0 auto; display: block;
+            animation: breathe 3s infinite ease-in-out; 
+            filter: drop-shadow(0 0 20px var(--accent-glow));
+            transform: translateX(-5px);
+        }
+        .loading-bar-box { 
+            width: 300px; max-width: 80%; height: 6px; 
+            background: rgba(255, 255, 255, 0.1); border-radius: 10px; 
+            overflow: hidden; margin: 2rem auto 0 auto; 
+        }
+        .loading-bar { width: 0%; height: 100%; background: var(--accent); border-radius: 10px; box-shadow: 0 0 15px var(--accent-glow); transition: width 0.1s linear; }
+        .loading-text { color: var(--text-sub); font-family: 'JetBrains Mono', monospace; font-size: 1rem; letter-spacing: 2px; margin-top: 15px; animation: blink 1.5s infinite; text-align: center; }
+        @keyframes breathe { 0%, 100% { transform: scale(1) translateX(-5px); opacity: 0.8; } 50% { transform: scale(1.05) translateX(-5px); opacity: 1; } }
+        @keyframes blink { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        /* --- LANGUAGE SWITCHER --- */
+        .lang-switch {
+            position: absolute; top: -60px; right: 0; display: flex; gap: 10px;
+            background: rgba(20, 20, 20, 0.6); padding: 8px; border-radius: 12px;
+            border: 1px solid var(--card-border); backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+        .lang-btn { background: none; border: none; color: var(--text-sub); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 1rem; transition: 0.3s; }
+        .lang-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.1); }
+        .lang-btn.active { color: #000; background: var(--accent); font-weight: bold; }
+
+        /* --- LAYOUT GRID --- */
+        .container {
+            width: 100%; max-width: 1600px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, minmax(220px, auto));
+            gap: 2rem;
+            grid-template-areas:
+                "profile profile status music"
+                "profile profile social stats"
+                "tech    tech    social weather";
+            position: relative; opacity: 0; transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        .container.loaded { opacity: 1; transform: translateY(0); }
+
+        /* --- CARDS --- */
+        .card { 
+            background: var(--card-bg); border: 1px solid var(--card-border); 
+            border-radius: 30px; padding: 2rem; 
+            backdrop-filter: blur(25px) saturate(140%); -webkit-backdrop-filter: blur(25px) saturate(140%); 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            overflow: hidden; position: relative; display: flex; flex-direction: column; 
+            transform-style: preserve-3d; transform: perspective(1000px);
+        }
+        .card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: var(--noise-pattern); opacity: 0.4; z-index: -1; pointer-events: none;
+        }
+        
+        .card-profile { grid-area: profile; padding: 0; background: rgba(20, 20, 25, 0.85); }
+        .card-status { grid-area: status; background: #1e1e1e; font-family: 'JetBrains Mono', monospace; justify-content: center; border: 1px solid #333; }
+        .card-music { grid-area: music; }
+        .card-tech { grid-area: tech; }
+        .card-social { grid-area: social; }
+        .card-stats { grid-area: stats; justify-content: center; align-items: center; text-align: center; }
+        .card-weather { grid-area: weather; justify-content: center; align-items: center; text-align: center; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); }
+
+        /* --- PROFILE ELEMENTS --- */
+        .banner-container { position: relative; width: 100%; height: 180px; }
+        .banner-img { width: 100%; height: 100%; object-fit: cover; background-color: #222; }
+        .profile-content { padding: 2rem; position: relative; margin-top: -60px; z-index: 3; }
+        .profile-header { display: flex; align-items: flex-end; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .avatar-wrapper { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+        .avatar { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #1e1e23; background: #1e1e23; position: relative; z-index: 1; }
+        .avatar-decoration { position: absolute; top: -15%; left: -15%; width: 130%; height: 130%; z-index: 2; pointer-events: none; }
+        .status-indicator { position: absolute; bottom: 5px; right: 5px; width: 30px; height: 30px; border-radius: 50%; border: 5px solid #1e1e23; background-color: #3ba55c; z-index: 3; }
+        .names h1 { font-size: 2.2rem; font-weight: 700; line-height: 1.2; text-shadow: 0 2px 10px rgba(0,0,0,0.5); min-height: 2.6rem; cursor: pointer;}
+        .names span { color: var(--text-sub); font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; }
+        .badges-row { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .badge { width: 28px; height: 28px; opacity: 0.9; transition: transform 0.2s; }
+        .badge:hover { transform: scale(1.2); }
+        .bio-box { background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 16px; font-style: italic; border-left: 4px solid var(--accent); margin-top: 1rem; font-size: 1.1rem; backdrop-filter: blur(5px); }
+
+        /* --- CONTENT ELEMENTS --- */
+        .code-header { font-size: 0.95rem; color: #569cd6; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .code-content { font-size: 1rem; line-height: 1.6; }
+        .keyword { color: #c586c0; } .string { color: #ce9178; } .function { color: #dcdcaa; }
+        
+        .music-wrapper { display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
+        .music-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .music-icon-box { width: 60px; height: 60px; border-radius: 12px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--accent); flex-shrink: 0;}
+        .music-details h4 { font-size: 1.2rem; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .music-details p { font-size: 0.9rem; color: var(--text-sub); }
+        .controls { display: flex; align-items: center; gap: 15px; margin-top: auto; }
+        .play-btn { background: none; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .play-btn:hover { color: var(--accent); transform: scale(1.1); }
+        .volume-container { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
+        .volume-icon { font-size: 1rem; color: var(--text-sub); width: 20px; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; border-radius: 50%; background: var(--text-main); -webkit-appearance: none; margin-top: -4px; transition: 0.2s; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        input[type=range]:hover::-webkit-slider-thumb { background: var(--accent); transform: scale(1.2); }
+        .equalizer { display: flex; gap: 4px; height: 25px; align-items: flex-end; margin-left: 10px; }
+        .bar { width: 6px; background: var(--accent); animation: none; height: 20%; border-radius: 2px; }
+        .bar.playing { animation: bounce 1s infinite ease-in-out; }
+        .bar:nth-child(2) { animation-delay: 0.1s; } .bar:nth-child(3) { animation-delay: 0.2s; }
+        @keyframes bounce { 0%, 100% { height: 20%; } 50% { height: 100%; } }
+        
+        .social-grid { display: grid; grid-template-columns: 1fr; gap: 12px; height: 100%; align-content: start; }
+        .social-item { display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(255,255,255,0.08); border-radius: 16px; text-decoration: none; color: var(--text-main); transition: 0.2s; font-size: 1.1rem; border: 1px solid transparent; }
+        .social-item:hover { background: rgba(255,255,255,0.15); border-color: var(--accent); transform: translateX(5px); }
+        
+        .tech-list { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: auto; }
+        .tech-icon { font-size: 2.5rem; color: var(--text-sub); transition: 0.3s; }
+        .tech-icon:hover { color: var(--text-main); transform: scale(1.2) rotate(10deg); text-shadow: 0 0 15px var(--accent); }
+        .time-text { color: var(--text-sub); font-size: 1rem; }
+        h3 { font-size: 1.4rem; margin-bottom: 1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+        .weather-icon { font-size: 3.5rem; color: var(--accent); margin-bottom: 15px; text-shadow: 0 0 20px var(--accent-glow); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .weather-info h2 { font-size: 2.5rem; font-weight: 700; margin: 0; line-height: 1; }
+        .weather-info p { color: var(--text-sub); margin-top: 5px; font-size: 1.1rem; }
+
+        .tooltip { position: absolute; background: var(--accent); color: #000; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; top: -30px; left: 50%; transform: translateX(-50%); opacity: 0; transition: 0.3s; pointer-events: none; font-weight: bold; }
+        .tooltip.show { opacity: 1; top: -40px; }
+
+        @media (max-width: 900px) {
+            body { padding: 1rem; font-size: 1rem; }
+            .container { display: flex; flex-direction: column; width: 100%; margin-top: 60px; gap: 1.5rem; }
+            .lang-switch { top: -50px; right: 50%; transform: translateX(50%); width: max-content; padding: 6px; }
+            .lang-btn { padding: 6px 12px; font-size: 0.9rem; }
+            .card { padding: 1.5rem; border-radius: 20px; }
+            .profile-header { flex-direction: column; align-items: center; text-align: center; gap: 1rem; margin-bottom: 1rem; }
+            .profile-content { margin-top: -50px; padding: 1.5rem; }
+            .avatar-wrapper { width: 100px; height: 100px; }
+            .names h1 { font-size: 1.8rem; }
+            .names span { font-size: 1rem; }
+            .badges-row { justify-content: center; }
+            .bio-box { text-align: left; }
+            .music-header { flex-direction: column; text-align: center; gap: 10px; }
+            .controls { flex-direction: column; width: 100%; gap: 10px; }
+            .volume-container { width: 100%; }
+            .weather-icon { font-size: 3rem; }
+            .weather-info h2 { font-size: 2rem; }
+            .tech-icon { font-size: 2rem; }
+            .social-item { padding: 12px; font-size: 1rem; }
+        }
+    </style>
 </head>
-
 <body>
-    <div class="background-glow"></div>
 
-    <header class="glass-header">
-        <div class="container nav-container">
-            <a href="#" class="logo">MALizU_IIX<span class="dot">.</span></a>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About Me</a></li>
-                    <li><a href="#projects">Coming Soon</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-                <button class="mobile-menu-btn" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </nav>
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="https://cdn.discordapp.com/attachments/1273910216861290496/1455169566341595186/Violet.mp4?ex=6953bfc4&is=69526e44&hm=fdbba7d103ca96e5e5bc52c416ff1ce70988a44786d83959b3f525cf6a56afb1&" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <audio id="theme-audio" loop><source src="theme_music.mp3" type="audio/mp3"></audio>
+
+    <div id="preloader">
+        <div class="loader-content">
+            <img src="IIX_logo.png" alt="IIX Logo" class="loader-logo">
+            <div class="loading-bar-box"><div class="loading-bar" id="loading-bar"></div></div>
+            <p class="loading-text" data-i18n="initializing">INITIALIZING...</p>
         </div>
-    </header>
-
-    <main class="bento-grid">
-        <!-- Home Section -->
-        <section id="home" class="home-section bento-item">
-            <div class="home-main-content">
-                <div class="home-text">
-                    <h1 class="home-title">MALizU_IIX</h1>
-                    <h2 class="home-subtitle slide-up delay-1">Junior Full-Stack Developer</h2>
-
-                </div>
-                <div class="home-visual fade-in delay-2">
-                    <img src="profile.png" alt="MALizU_IIX Profile" class="profile-image">
-                </div>
-            </div>
-        </section>
-
-        <!-- Discord Status Section -->
-        <section id="discord" class="discord-section bento-item">
-            <div class="discord-profile-card">
-                <div class="discord-avatar-wrapper">
-                    <img src="profile.png" alt="Discord Avatar" id="discord-avatar" class="discord-avatar-img">
-                    <span id="discord-status-dot" class="status-dot"></span>
-                </div>
-                <div class="discord-text-info">
-                    <span class="discord-username" id="discord-username-status">MALizU_IIX</span>
-                    <span class="discord-status-text" id="discord-status">Loading...</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- About Section -->
-        <section id="about" class="section about-section bento-item">
-            <div class="container">
-                <div class="section-header fade-in-scroll">
-                    <h2 class="section-title">About Me</h2>
-                    <span class="section-subtitle">Who I Am</span>
-                </div>
-
-                <div class="bento-grid about-bento-grid">
-                    <div class="bento-item bento-about-text fade-in-scroll">
-                        <h3>About Me</h3>
-                        <p>
-                            I am a Junior Full-Stack Developer with a big dream and strong determination to grow, continuously learn, and create impactful digital solutions through technology.
-                        </p>
-                    </div>
-                    <div class="bento-item bento-stats fade-in-scroll delay-0">
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <span class="stat-number">1+</span>
-                                <span class="stat-label">Years of Experience</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bento-item bento-education fade-in-scroll delay-1">
-                        <h3>Education</h3>
-                        <div class="education-container">
-                            <div class="education-item">
-                                <h4>Wang Klai Kangwon School under Royal Patronage</h4>
-                                <p>Arts–Mathematics Program</p>
-                                <p>Grade Point Average (GPA): 2.39</p>
-                            </div>
-                            <div class="education-item">
-                                <h4>Hua Hin Wittayalai School</h4>
-                                <p>Special Intensive English Program (SIEP)</p>
-                                <p>Cumulative Grade Point Average (GPA): 2.35</p>
-                            </div>
-                            <div class="education-item">
-                                <h4>Currently studying at</h4>
-                                <p>Bansomdejchaopraya Rajabhat University (BSRU)</p>
-                                <p>Bachelor’s Degree Program in Animation, Game, and Digital Media</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bento-item bento-skills fade-in-scroll delay-2">
-                         <div class="skills-container">
-                            <div class="skill-category">
-                                <h3>Frontend</h3>
-                                <div class="skill-tags">
-                                    <span>HTML5</span>
-                                    <span>CSS3</span>
-                                    <span>JavaScript</span>
-                                    <span>React</span>
-                                    <span>Tailwind</span>
-                                </div>
-                            </div>
-                            <div class="skill-category">
-                                <h3>Backend</h3>
-                                <div class="skill-tags">
-                                    <span>Node.js</span>
-                                    <span>Express</span>
-                                    <span>SQL</span>
-                                    <span>MongoDB</span>
-                                    <span>API Design</span>
-                                </div>
-                            </div>
-                            <div class="skill-category">
-                                <h3>Tools</h3>
-                                <div class="skill-tags">
-                                    <span>Git</span>
-                                    <span>VS Code</span>
-                                    <span>Figma</span>
-                                    <span>Docker</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Coming Soon Section -->
-        <section id="projects" class="section projects-section coming-soon-section bento-item">
-            <div class="container">
-                <div class="section-header fade-in-scroll">
-                    <h2 class="section-title">Projects</h2>
-                    <span class="section-subtitle">Coming Soon!</span>
-                </div>
-                <div class="coming-soon-content fade-in-scroll">
-                    <p>I'm currently working on some exciting new projects.</p>
-                    <p>Please check back soon for updates!</p>
-                    <div class="loading-spinner"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact" class="section contact-section bento-item">
-            <div class="container">
-                <div class="contact-wrapper fade-in-scroll">
-                    <div class="bento-grid contact-bento">
-                        <div class="bento-item bento-contact-title">
-                            <h2 class="contact-title">Contact Me</h2>
-                        </div>
-                        <div class="bento-item bento-socials">
-                            <!-- Discord Profile Display -->
-                            <a href="https://discord.com/users/741501421936967722" target="_blank" class="social-profile-link">
-                                <div class="social-profile-display discord-style">
-                                    <i class="fab fa-discord social-icon-main"></i>
-                                    <span class="social-username" id="discord-username">MALizU_IIX</span>
-                                </div>
-                            </a>
-                            <!-- Instagram Profile Display -->
-                            <a href="https://www.instagram.com/0xygen_ox1de/" target="_blank" class="social-profile-link">
-                                <div class="social-profile-display instagram-style">
-                                    <i class="fab fa-instagram social-icon-main"></i>
-                                    <span class="social-username">0xygen_ox1de</span>
-                                </div>
-                            </a>
-                            <!-- GitHub Profile Display -->
-                            <a href="https://github.com/malizu-IIx" target="_blank" class="social-profile-link">
-                                <div class="social-profile-display github-style">
-                                    <i class="fab fa-github social-icon-main"></i>
-                                    <span class="social-username">malizu-IIx</span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="container footer-content">
-            <p>&copy; 2025 MALizU_IIX. All rights reserved.</p>
-            <p>Designed & Built with <span class="heart">♥</span></p>
-        </div>
-    </footer>
-
-    <audio id="theme-music" src="theme_music.mp3" loop></audio>
-    <div class="music-player-container">
-        <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="100" orient="vertical">
-        <button id="music-control-btn" class="music-control">
-            <i class="fas fa-play"></i>
-        </button>
     </div>
 
-    <script src="main.js"></script>
-</body>
+    <div class="container" id="main-content">
+        <div class="lang-switch">
+            <button class="lang-btn active" id="btn-en">EN</button>
+            <button class="lang-btn" id="btn-th">TH</button>
+            <button class="lang-btn" id="btn-jp">JP</button>
+        </div>
 
+        <div class="card card-profile tilt-card">
+            <div class="banner-container"><img id="user-banner" src="" class="banner-img" alt="Banner"></div>
+            <div class="profile-content">
+                <div class="profile-header">
+                    <div class="avatar-wrapper">
+                        <img id="user-avatar" src="" alt="Avatar" class="avatar">
+                        <img id="avatar-decoration" src="" class="avatar-decoration" style="display:none;">
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div class="names" style="position: relative;">
+                        <h1 id="global-name" data-value="Loading...">Loading...</h1>
+                        <span id="username" style="cursor: pointer;">@...</span>
+                        <div id="copy-tooltip" class="tooltip">Copied!</div>
+                        <div class="badges-row" id="badge-container"></div>
+                    </div>
+                </div>
+                <div class="bio-box"><p id="bio">Loading bio...</p></div>
+            </div>
+        </div>
+
+        <div class="card card-status tilt-card">
+            <div class="code-header"><i class="fa-solid fa-code"></i> Visual Studio Code</div>
+            <div class="code-content" id="vscode-content"><p>Idle...</p></div>
+        </div>
+
+        <div class="card card-music tilt-card">
+            <div class="music-wrapper">
+                <div class="music-header">
+                    <div class="music-icon-box"><i class="fa-solid fa-music"></i></div>
+                    <div class="music-details">
+                        <h4 data-i18n="music_title">Theme Music</h4>
+                        <p>Background Vibes</p>
+                    </div>
+                    <div class="equalizer" id="equalizer"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                </div>
+                <div class="controls">
+                    <button class="play-btn" id="play-btn"><i class="fa-solid fa-play"></i></button>
+                    <div class="volume-container">
+                        <i class="fa-solid fa-volume-low volume-icon"></i>
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-social tilt-card">
+            <h3 data-i18n="connect">Connect</h3>
+            <div class="social-grid" id="social-grid"></div>
+        </div>
+
+        <div class="card card-tech tilt-card">
+            <h3 data-i18n="tech_stack">Tech Stack</h3>
+            <p class="tech-subtitle" data-i18n="tech_subtitle">Full-Stack Developer in training.</p>
+            <div class="tech-list">
+                <i class="fa-brands fa-html5 tech-icon" title="HTML5"></i>
+                <i class="fa-brands fa-css3-alt tech-icon" title="CSS3"></i>
+                <i class="fa-brands fa-js tech-icon" title="JavaScript"></i>
+                <i class="fa-brands fa-react tech-icon" title="React"></i>
+                <i class="fa-brands fa-node tech-icon" title="Node.js"></i>
+                <i class="fa-brands fa-github tech-icon" title="Git"></i>
+            </div>
+        </div>
+
+        <div class="card card-stats tilt-card">
+            <div>
+                <i class="fa-solid fa-earth-asia" style="font-size: 2.5rem; color: var(--accent);"></i>
+                <h3 style="margin-top:15px;" data-i18n="location">Thailand</h3>
+                <p class="time-text" id="local-time">Loading time...</p>
+            </div>
+        </div>
+
+        <div class="card card-weather tilt-card">
+            <div class="weather-icon"><i class="fa-solid fa-cloud-sun"></i></div>
+            <div class="weather-info">
+                <h2 id="temp">--°C</h2>
+                <p id="weather-desc">Bangkok</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-en').addEventListener('click', () => changeLanguage('en'));
+            document.getElementById('btn-th').addEventListener('click', () => changeLanguage('th'));
+            document.getElementById('btn-jp').addEventListener('click', () => changeLanguage('jp'));
+            document.getElementById('play-btn').addEventListener('click', toggleMusic);
+            document.getElementById('username').addEventListener('click', copyDiscordID);
+
+            const volSlider = document.getElementById('volume-slider');
+            volSlider.addEventListener('input', (e) => {
+                const vol = e.target.value;
+                const audio = document.getElementById('theme-audio');
+                if(audio) audio.volume = vol;
+                const percent = vol * 100;
+                e.target.style.background = `linear-gradient(to right, var(--accent) ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
+            });
+            volSlider.dispatchEvent(new Event('input'));
+
+            const bar = document.getElementById('loading-bar');
+            const preloader = document.getElementById('preloader');
+            const mainContent = document.getElementById('main-content');
+            let width = 0;
+            const interval = setInterval(() => {
+                width += 1;
+                if (width >= 100) {
+                    clearInterval(interval);
+                    preloader.style.opacity = '0';
+                    preloader.style.visibility = 'hidden';
+                    document.body.style.overflow = 'auto';
+                    setTimeout(() => { mainContent.classList.add('loaded'); }, 200);
+                }
+                bar.style.width = width + '%';
+            }, 20);
+
+            fetchWeather();
+            setInterval(updateTime, 1000);
+            renderPortfolio();
+        });
+
+        // (ฟังก์ชันอื่นๆ เหมือนเดิม)
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX; const posY = e.clientY;
+            cursorDot.style.left = `${posX}px`; cursorDot.style.top = `${posY}px`;
+            cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
+        });
+        document.querySelectorAll('a, button, input[type=range], #username').forEach(el => {
+            el.addEventListener('mouseenter', () => cursorOutline.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hovered'));
+        });
+
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                const centerX = rect.width / 2; const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5; const rotateY = ((x - centerX) / centerX) * 5;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            });
+            card.addEventListener('mouseleave', () => { card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`; });
+        });
+
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*";
+        let hackerInterval = null;
+        function runHackerEffect(target) {
+            let iteration = 0; clearInterval(hackerInterval);
+            const originalText = target.dataset.value;
+            hackerInterval = setInterval(() => {
+                target.innerText = originalText.split("").map((letter, index) => {
+                    if(index < iteration) return originalText[index];
+                    return letters[Math.floor(Math.random() * 26)];
+                }).join("");
+                if(iteration >= originalText.length) clearInterval(hackerInterval);
+                iteration += 1 / 3;
+            }, 30);
+        }
+
+        function copyDiscordID() {
+            const username = document.getElementById('username').innerText.replace('@', '');
+            navigator.clipboard.writeText(username);
+            const tooltip = document.getElementById('copy-tooltip');
+            tooltip.classList.add('show');
+            setTimeout(() => tooltip.classList.remove('show'), 2000);
+        }
+
+        let isPlaying = false;
+        function toggleMusic() {
+            const audio = document.getElementById('theme-audio');
+            const playBtn = document.getElementById('play-btn');
+            const bars = document.querySelectorAll('.bar');
+            if (isPlaying) { audio.pause(); playBtn.innerHTML = '<i class="fa-solid fa-play"></i>'; bars.forEach(b => b.classList.remove('playing')); }
+            else { audio.play(); playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>'; bars.forEach(b => b.classList.add('playing')); }
+            isPlaying = !isPlaying;
+        }
+
+        const translations = {
+            en: { initializing: "INITIALIZING...", connect: "Connect", tech_stack: "Tech Stack", tech_subtitle: "Full-Stack Developer in training.", location: "Thailand", music_title: "Theme Music", status_idle: "Idle..." },
+            th: { initializing: "กำลังเริ่มต้น...", connect: "ช่องทางติดต่อ", tech_stack: "เทคโนโลยีที่ใช้", tech_subtitle: "กำลังฝึกฝนเป็น Full-Stack Developer", location: "ประเทศไทย", music_title: "เพลงธีม", status_idle: "ว่าง..." },
+            jp: { initializing: "読み込み中...", connect: "リンク", tech_stack: "技術スタック", tech_subtitle: "フルスタックエンジニアを目指して勉強中", location: "タイ", music_title: "テーマ音楽", status_idle: "アイドル状態..." }
+        };
+        function changeLanguage(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) element.innerText = translations[lang][key];
+            });
+        }
+
+        async function fetchWeather() {
+            try {
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.5167&current_weather=true');
+                const data = await res.json();
+                document.getElementById('temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
+            } catch (e) { console.error("Weather Error:", e); }
+        }
+        function updateTime() { document.getElementById('local-time').innerText = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
+
+        const rawData = {
+            "ame": {
+                "user": { "id": "741501421936967722", "username": "sb_malizu", "global_name": "MALizU_IIX ~<3", "avatar": "87c81f0a7c19383a48aaecdf96dda77e", "avatar_decoration_data": { "asset": "a_8384f035d67eb209be18aaadf191f25e" } },
+                "user_profile": { "pronouns": "𝖁𝖎𝖑𝖑𝖆𝖎𝖓𝖘 𝖆𝖗𝖊 𝖒𝖆𝖉𝖊,𝖓𝖔𝖙 𝖇𝖔𝖗𝖓", "banner": "a_ba4ae9e432627615c3b1da1d9658281a" },
+                "connected_accounts": [
+                    { "type": "discord", "id": "741501421936967722", "name": "sb_malizu" }, { "type": "github", "name": "malizu-IIx" }, { "type": "instagram", "name": "0xygen_ox1de" },
+                    { "type": "twitch", "name": "malizu_iix" }, { "type": "xbox", "name": "MALizU11X" }, { "type": "youtube", "name": "MALizU_IIX" }
+                ],
+                "badges": [ { "icon": "2ba85e8026a8614b640c2837bcdfe21b" }, { "icon": "3aa41de486fa12454c3761e8e223442e" } ],
+                "activities": [ { "name": "Visual Studio Code", "type": 0, "details": "Editing style.css", "state": "Workspace: MALizU_IIX profile project" } ]
+            }
+        };
+
+        function renderPortfolio() {
+            const data = rawData.ame; const user = data.user; const profile = data.user_profile;
+            const bannerEl = document.getElementById('user-banner');
+            if (profile.banner) bannerEl.src = `https://cdn.discordapp.com/banners/${user.id}/${profile.banner}.${profile.banner.startsWith("a_")?"gif":"png"}?size=512`;
+            if (user.avatar_decoration_data) document.getElementById('avatar-decoration').src = `https://cdn.discordapp.com/avatar-decoration-presets/${user.avatar_decoration_data.asset}.png?size=256&passthrough=false`; document.getElementById('avatar-decoration').style.display='block';
+            const nameEl = document.getElementById('global-name');
+            nameEl.innerText = user.global_name; nameEl.dataset.value = user.global_name; nameEl.onmouseover = () => runHackerEffect(nameEl);
+            document.getElementById('username').innerText = `@${user.username}`;
+            document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
+            document.getElementById('bio').innerText = profile.pronouns;
+            const badgeContainer = document.getElementById('badge-container');
+            data.badges.forEach(badge => {
+                const img = document.createElement('img'); img.src = `https://cdn.discordapp.com/badge-icons/${badge.icon}.png`;
+                img.className = 'badge'; img.onerror = () => { img.style.display = 'none'; }; badgeContainer.appendChild(img);
+            });
+            data.activities.forEach(act => {
+                if (act.name === "Visual Studio Code") {
+                    document.getElementById('vscode-content').innerHTML = `<p><span class="keyword">const</span> <span class="function">project</span> = <span class="string">"${act.state}"</span>;</p><p><span class="keyword">let</span> <span class="function">task</span> = <span class="string">"${act.details}"</span>;</p><div style="margin-top:10px; font-size:0.8rem; color:#888;"><i class="fa-regular fa-clock"></i> Just now</div>`;
+                }
+            });
+            const socialGrid = document.getElementById('social-grid');
+            const icons = { discord: 'fa-discord', github: 'fa-github', instagram: 'fa-instagram', twitch: 'fa-twitch', youtube: 'fa-youtube', xbox: 'fa-xbox' };
+            const getSocialUrl = (acc) => {
+                switch(acc.type) {
+                    case 'discord': return `https://discord.com/users/${acc.id}`; case 'github': return `https://github.com/${acc.name}`; case 'instagram': return `https://instagram.com/${acc.name}`;
+                    case 'twitch': return `https://twitch.tv/${acc.name}`; case 'youtube': return `https://youtube.com/@${acc.name}`; case 'xbox': return `https://xboxgamertag.com/search/${acc.name}`; default: return '#';
+                }
+            };
+            data.connected_accounts.forEach(acc => {
+                const a = document.createElement('a'); a.href = getSocialUrl(acc); a.className = 'social-item'; a.target = "_blank";
+                let style = ""; if (acc.type === 'discord') style = "color:#5865F2; font-weight:bold;"; else if (acc.type === 'github') style = "font-weight:bold;"; else if (acc.type === 'instagram') style = "font-weight:bold;";
+                a.innerHTML = `<i class="fa-brands ${icons[acc.type] || 'fa-link'}" style="font-size:1.3rem;"></i><span style="${style}">${acc.name}</span>`;
+                socialGrid.appendChild(a);
+            });
+        }
+    </script>
+</body>
 </html>
