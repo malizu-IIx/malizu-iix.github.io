@@ -1,310 +1,286 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 🔥 CONFIG FIREBASE
-    const firebaseConfig = {
-        apiKey: "AIzaSyD2eunvUePQmjBKXWL2wf19Rg_yr7vezkE",
-        authDomain: "malizu-profile-project.firebaseapp.com",
-        databaseURL: "https://malizu-profile-project-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "malizu-profile-project",
-        storageBucket: "malizu-profile-project.firebasestorage.app",
-        messagingSenderId: "811283157266",
-        appId: "1:811283157266:web:66d82d1cf2fbcd275763cb",
-        measurementId: "G-ERZ9GYSXY0"
-    };
-
-    // --- OPTIMIZED FIREBASE LOGIC ---
+    try { initCursor(); } catch (e) { console.error("Cursor Error:", e); }
     try {
-        if (typeof firebase !== 'undefined' && firebaseConfig.apiKey) {
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.database();
-            const likesRef = db.ref('likes');
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2eunvUePQmjBKXWL2wf19Rg_yr7vezkE",
+            authDomain: "malizu-profile-project.firebaseapp.com",
+            databaseURL: "https://malizu-profile-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "malizu-profile-project",
+            storageBucket: "malizu-profile-project.firebasestorage.app",
+            messagingSenderId: "811283157266",
+            appId: "1:811283157266:web:66d82d1cf2fbcd275763cb",
+            measurementId: "G-ERZ9GYSXY0"
+        };
+        initFirebase(firebaseConfig);
+    } catch (e) { console.error("Firebase Error:", e); }
 
-            const likeBtn = document.getElementById('like-btn');
-            const likeIcon = document.getElementById('like-icon');
-            const likeCountSpan = document.getElementById('like-count');
-            const likeText = document.getElementById('like-text');
-
-            // Listen for updates (Realtime)
-            likesRef.on('value', (snapshot) => {
-                const currentLikes = snapshot.val() || 0;
-                if(likeCountSpan) likeCountSpan.innerText = currentLikes;
-                if(likeText) likeText.innerHTML = `${currentLikes} accounts / 1 <i class="fa-solid fa-heart" style="color:var(--accent);"></i>`;
-            });
-
-            // Check Local Storage
-            if (localStorage.getItem('isLiked') === 'true') {
-                likeBtn.classList.add('liked');
-                likeIcon.classList.remove('fa-regular');
-                likeIcon.classList.add('fa-solid');
-            }
-
-            // Click Event
-            likeBtn.addEventListener('click', () => {
-                if (localStorage.getItem('isLiked') === 'true') {
-                    likesRef.transaction(current => (current || 0) - 1);
-                    localStorage.removeItem('isLiked');
-                    likeBtn.classList.remove('liked');
-                    likeIcon.classList.remove('fa-solid');
-                    likeIcon.classList.add('fa-regular');
-                } else {
-                    likesRef.transaction(current => (current || 0) + 1);
-                    localStorage.setItem('isLiked', 'true');
-                    likeBtn.classList.add('liked');
-                    likeIcon.classList.remove('fa-regular');
-                    likeIcon.classList.add('fa-solid');
-                }
-            });
-        }
-    } catch (e) {
-        console.error("Firebase Error:", e);
-    }
-
-    // --- SETUP EVENT LISTENERS ---
-    const setupListener = (id, event, handler) => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener(event, handler);
-    };
-
-    setupListener('btn-en', 'click', () => changeLanguage('en'));
-    setupListener('btn-th', 'click', () => changeLanguage('th'));
-    setupListener('btn-jp', 'click', () => changeLanguage('jp'));
-    setupListener('play-btn', 'click', toggleMusic);
-    setupListener('username', 'click', copyDiscordID);
-
-    const volSlider = document.getElementById('volume-slider');
-    if(volSlider) {
-        volSlider.addEventListener('input', (e) => {
-            const vol = e.target.value;
-            const audio = document.getElementById('theme-audio');
-            if(audio) audio.volume = vol;
-            const percent = vol * 100;
-            e.target.style.background = `linear-gradient(to right, var(--accent) ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
-        });
-        volSlider.dispatchEvent(new Event('input'));
-    }
-
-    // --- OPTIMIZED PRELOADER ---
-    const bar = document.getElementById('loading-bar');
-    const preloader = document.getElementById('preloader');
-    const mainContent = document.getElementById('main-content');
-    
-    let width = 0;
-    function animateLoader() {
-        if (width >= 100) {
-            preloader.style.opacity = '0';
-            preloader.style.visibility = 'hidden';
-            document.body.style.overflow = 'auto';
-            setTimeout(() => { mainContent.classList.add('loaded'); }, 200);
-        } else {
-            width += 1.5; 
-            if(bar) bar.style.width = width + '%';
-            requestAnimationFrame(animateLoader);
-        }
-    }
-    requestAnimationFrame(animateLoader);
-
-    // --- OTHER INITS ---
+    initUI();
+    fetchData();
     fetchWeather();
     setInterval(updateTime, 1000);
-    renderPortfolio();
-    typeWriter();
-    
-    // Initialize Cursor and Tilt optimization
-    initOptimizedInteractions();
+    initTilt();
 });
 
-// --- PERFORMANCE OPTIMIZED MOUSE & TILT LOGIC ---
-function initOptimizedInteractions() {
-    const cursorDot = document.querySelector('.cursor-dot');
-    const cursorOutline = document.querySelector('.cursor-outline');
-    const cards = document.querySelectorAll('.tilt-card');
+// Image Resolver
+function resolveImage(applicationId, assetId) {
+    if (!assetId) return null;
+    if (assetId.startsWith("http")) return assetId;
+    if (assetId.startsWith("spotify:")) return `https://i.scdn.co/image/${assetId.split(':')[1]}`;
+    if (assetId.startsWith("mp:")) return assetId.replace("mp:", "https://media.discordapp.net/");
+    return `https://cdn.discordapp.com/app-assets/${applicationId}/${assetId}.png`;
+}
 
-    if (!cursorDot || !cursorOutline) return; // Safety check
-
-    let mouseX = window.innerWidth / 2; // Default to center
-    let mouseY = window.innerHeight / 2;
-    let cursorX = mouseX, cursorY = mouseY;
-    let isMoving = false;
-
-    // Track mouse position
-    window.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        isMoving = true;
-        // Make visible on first move
-        cursorDot.style.opacity = '1';
-        cursorOutline.style.opacity = '1';
-    });
-
-    // Handle Hover States
-    document.querySelectorAll('a, button, input[type=range], #username').forEach(el => {
-        el.addEventListener('mouseenter', () => cursorOutline.classList.add('hovered'));
-        el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hovered'));
-    });
-
-    // Animation Loop
-    function animate() {
-        // Smooth Cursor Follow (Lerp)
-        // Move dot instantly
-        cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
-        
-        // Move outline with lag
-        cursorX += (mouseX - cursorX) * 0.15;
-        cursorY += (mouseY - cursorY) * 0.15;
-        cursorOutline.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
-
-        // Tilt Effect
-        if (isMoving) {
-            cards.forEach(card => {
-                const rect = card.getBoundingClientRect();
-                if (mouseX >= rect.left - 50 && mouseX <= rect.right + 50 &&
-                    mouseY >= rect.top - 50 && mouseY <= rect.bottom + 50) {
-                    
-                    const x = mouseX - rect.left;
-                    const y = mouseY - rect.top;
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    const rotateX = ((y - centerY) / centerY) * -4;
-                    const rotateY = ((x - centerX) / centerX) * 4;
-                    
-                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
-                } else {
-                    if(card.style.transform !== '') card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
-                }
-            });
-        }
-        requestAnimationFrame(animate);
+// API Data
+async function fetchData() {
+    const API_URL = 'https://api.ame.nattapat2871.me/v1/user/741501421936967722';
+    try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        renderData(data);
+    } catch (e) {
+        renderData({ ame: { user: { username: "sb_malizu", global_name: "MALizU", id: "741501421936967722", avatar: "" }, user_profile: { bio: "Full-Stack Dev" } } });
     }
+}
+
+function renderData(data) {
+    const root = data.ame || data || {};
+    const user = root.user || {};
+    const profile = root.user_profile || {};
+    const activities = root.activities || [];
+    const accounts = root.connected_accounts || [];
+
+    // Profile
+    if(profile.banner) document.getElementById('user-banner').src = `https://cdn.discordapp.com/banners/${user.id}/${profile.banner}.${profile.banner.startsWith("a_")?"gif":"png"}?size=512`;
+    document.getElementById('global-name').innerText = user.global_name || "MALizU";
+    document.getElementById('username').innerText = `@${user.username}`;
+    document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
+    document.getElementById('bio').innerText = profile.bio || profile.pronouns || "";
+
+    // Status
+    const statusColors = { online: "#3ba55c", idle: "#faa61a", dnd: "#ed4245", offline: "#747f8d" };
+    document.getElementById('status-indicator').style.backgroundColor = statusColors[root.discord_status] || statusColors.offline;
+
+    // Activity (VS Code)
+    const vscodeEl = document.getElementById('vscode-content');
+    const act = activities.find(a => a.name === "Visual Studio Code" || a.type === 0);
+    if(act) {
+        let img = resolveImage(act.application_id, act.assets?.large_image) || "https://raw.githubusercontent.com/github/explore/main/topics/visual-studio-code/visual-studio-code.png";
+        vscodeEl.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <img src="${img}" style="width:40px; height:40px; border-radius:8px; object-fit:cover;" onerror="this.style.display='none'">
+                <div style="overflow:hidden;">
+                    <div style="font-weight:bold; font-size:0.9rem; white-space:nowrap; text-overflow:ellipsis;">${act.name}</div>
+                    <div style="font-size:0.8rem; color:#bbb;">Active</div>
+                </div>
+            </div>
+            <div class="code-line"><span class="keyword">const</span> project = <span class="string">"${act.state || 'Coding'}"</span>;</div>
+            <div class="code-line"><span class="keyword">let</span> task = <span class="string">"${act.details || '...'}"</span>;</div>
+        `;
+    } else {
+        vscodeEl.innerHTML = `<div style="display:flex; align-items:center; height:100%; color:#666;"><i class="fa-solid fa-moon" style="margin-right:8px;"></i> Currently Idle</div>`;
+    }
+
+    // Music Card (YouTube/Spotify)
+    const spEl = document.getElementById('spotify-content');
+    const cardEl = document.getElementById('spotify-card'); 
+    const headerEl = cardEl.querySelector('.spotify-header'); 
+
+    const musicAct = activities.find(a => a.name === "YouTube Music") || 
+                     activities.find(a => a.name === "Spotify") || 
+                     activities.find(a => a.type === 2);
+
+    if(musicAct) {
+        let art = resolveImage(musicAct.application_id, musicAct.assets?.large_image);
+        let title = musicAct.details || "Unknown Song";
+        let artist = musicAct.state || "Unknown Artist";
+        let appName = musicAct.name;
+        
+        let iconClass = "fa-music";
+        let color = "#EFACAA"; 
+
+        // ✅ AUTO GLOW COLOR LOGIC
+        if (appName === "YouTube Music") {
+            iconClass = "fa-youtube";
+            color = "#FF0000";
+            cardEl.classList.add('is-youtube');
+            cardEl.classList.remove('is-spotify');
+        } else if (appName === "Spotify") {
+            iconClass = "fa-spotify";
+            color = "#1DB954";
+            cardEl.classList.add('is-spotify');
+            cardEl.classList.remove('is-youtube');
+        }
+
+        headerEl.innerHTML = `<span style="color:${color}; display:flex; align-items:center;"><i class="fa-brands ${iconClass}" style="margin-right:5px;"></i> ${appName}</span>`;
+        cardEl.style.borderColor = `rgba(${appName === 'Spotify' ? '29,185,84' : (appName === 'YouTube Music' ? '255,0,0' : '239,172,170')}, 0.3)`;
+
+        spEl.innerHTML = `
+            <img src="${art}" class="sp-art" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            <div class="sp-info-box">
+                <div class="sp-title">${title}</div>
+                <div class="sp-artist">${artist}</div>
+            </div>
+        `;
+    } else {
+        // Reset when idle
+        cardEl.classList.remove('is-youtube', 'is-spotify');
+        headerEl.innerHTML = `<span style="color:#EFACAA; display:flex; align-items:center;"><i class="fa-solid fa-music" style="margin-right:5px;"></i> Music</span>`;
+        cardEl.style.borderColor = "rgba(255, 255, 255, 0.1)";
+        spEl.innerHTML = '<p style="color:#666;">Not listening...</p>';
+    }
+
+    // Connect
+    const socialGrid = document.getElementById('social-grid');
+    socialGrid.innerHTML = '';
+    const icons = { discord: 'fa-discord', github: 'fa-github', instagram: 'fa-instagram', twitch: 'fa-twitch', youtube: 'fa-youtube', xbox: 'fa-xbox' };
+    if(accounts.length > 0) {
+        accounts.forEach(acc => {
+            const a = document.createElement('a');
+            a.href = '#';
+            if(acc.type==='github') a.href = `https://github.com/${acc.name}`;
+            if(acc.type==='instagram') a.href = `https://instagram.com/${acc.name}`;
+            if(acc.type==='youtube') a.href = `https://youtube.com/@${acc.name}`;
+            if(acc.type==='twitch') a.href = `https://twitch.tv/${acc.name}`;
+            
+            a.className = 'social-item'; a.target = "_blank";
+            a.innerHTML = `<i class="fa-brands ${icons[acc.type] || 'fa-link'}"></i> <span>${acc.name}</span>`;
+            socialGrid.appendChild(a);
+        });
+    } else { socialGrid.innerHTML = '<p style="color:#666;">No accounts.</p>'; }
+}
+
+// System Utils
+function initTilt() {
+    const cards = document.querySelectorAll('.tilt-card');
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -5;
+            const rotateY = ((x - centerX) / centerX) * 5;
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+        });
+    });
+}
+
+function initCursor() {
+    const dot = document.querySelector('.cursor-dot');
+    const outline = document.querySelector('.cursor-outline');
+    if (!dot || !outline) return;
+    let mX = window.innerWidth/2, mY = window.innerHeight/2;
+    let cX = mX, cY = mY;
+    window.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; });
+    const animate = () => {
+        cX += (mX - cX) * 0.15; cY += (mY - cY) * 0.15;
+        dot.style.transform = `translate(${mX}px, ${mY}px) translate(-50%, -50%)`;
+        outline.style.transform = `translate(${cX}px, ${cY}px) translate(-50%, -50%)`;
+        requestAnimationFrame(animate);
+    };
     animate();
 }
 
-// --- HELPER FUNCTIONS ---
-function copyDiscordID() {
-    const username = document.getElementById('username').innerText.replace('@', '');
-    navigator.clipboard.writeText(username);
-    const tooltip = document.getElementById('copy-tooltip');
-    tooltip.classList.add('show');
-    setTimeout(() => tooltip.classList.remove('show'), 2000);
-}
+function initUI() {
+    const translations = {
+        en: { connect: "Connect", tech: "Tech Stack", friend: "My Friend", copied: "Copied!", music_title: "Theme Music", music_subtitle: "Background Vibes" },
+        th: { connect: "ช่องทางติดต่อ", tech: "เทคโนโลยี", friend: "เพื่อนของฉัน", copied: "คัดลอกแล้ว!", music_title: "เพลงธีม", music_subtitle: "เพลงประกอบ" },
+        jp: { connect: "リンク", tech: "技術", friend: "友達", copied: "コピーしました!", music_title: "テーマ音楽", music_subtitle: "バックグラウンド音楽" }
+    };
+    ['en', 'th', 'jp'].forEach(lang => {
+        document.getElementById(`btn-${lang}`).addEventListener('click', () => {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+            if(translations[lang]) {
+                document.querySelector('[data-i18n="connect"]').innerText = translations[lang].connect;
+                document.querySelector('[data-i18n="tech_stack"]').innerText = translations[lang].tech;
+                document.querySelector('[data-i18n="copied"]').innerText = translations[lang].copied;
+                document.querySelector('[data-i18n="music_title"]').innerText = translations[lang].music_title;
+                document.querySelector('[data-i18n="music_subtitle"]').innerText = translations[lang].music_subtitle;
+            }
+        });
+    });
 
-let isPlaying = false;
-function toggleMusic() {
     const audio = document.getElementById('theme-audio');
     const playBtn = document.getElementById('play-btn');
-    const bars = document.querySelectorAll('.bar');
-    if (isPlaying) { 
-        audio.pause(); 
-        playBtn.innerHTML = '<i class="fa-solid fa-play"></i>'; 
-        bars.forEach(b => b.classList.remove('playing')); 
-    } else { 
-        audio.play(); 
-        playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
-        bars.forEach(b => b.classList.add('playing')); 
+    const slider = document.getElementById('volume-slider');
+    let isPlaying = false;
+
+    if(playBtn && audio) {
+        playBtn.addEventListener('click', () => {
+            if(isPlaying) { 
+                audio.pause(); 
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i>'; 
+            } else { 
+                audio.play().catch(()=>{}); 
+                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Set initial volume color
+        const updateSliderColor = (val) => {
+            const p = val * 100;
+            slider.style.background = `linear-gradient(to right, #EFACAA ${p}%, rgba(255,255,255,0.1) ${p}%)`;
+        };
+        updateSliderColor(0.5);
+
+        slider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
+            updateSliderColor(e.target.value);
+        });
     }
-    isPlaying = !isPlaying;
+    
+    window.copyDiscordID = function() {
+        navigator.clipboard.writeText(document.getElementById('username').innerText.replace('@',''));
+        const tip = document.getElementById('copy-tooltip');
+        tip.classList.add('show');
+        setTimeout(() => tip.classList.remove('show'), 2000);
+    };
+
+    let w = 0;
+    const bar = document.getElementById('loading-bar');
+    const interval = setInterval(() => {
+        w += 2; if(bar) bar.style.width = w + '%';
+        if(w >= 100) {
+            clearInterval(interval);
+            const pl = document.getElementById('preloader');
+            pl.style.opacity = 0; setTimeout(()=>pl.style.display='none', 800);
+            document.getElementById('main-content').classList.add('loaded');
+        }
+    }, 20);
 }
 
-const translations = {
-    en: { initializing: "INITIALIZING...", connect: "Connect", tech_stack: "Tech Stack", tech_subtitle: "Full-Stack Developer in training.", location: "Thailand", music_title: "Theme Music", status_idle: "Idle..." },
-    th: { initializing: "กำลังเริ่มต้น...", connect: "ช่องทางติดต่อ", tech_stack: "เทคโนโลยีที่ใช้", tech_subtitle: "กำลังฝึกฝนเป็น Full-Stack Developer", location: "ประเทศไทย", music_title: "เพลงธีม", status_idle: "ว่าง..." },
-    jp: { initializing: "読み込み中...", connect: "リンク", tech_stack: "技術スタック", tech_subtitle: "フルスタックエンジニアを目指して勉強中", location: "タイ", music_title: "テーマ音楽", status_idle: "アイドル状態..." }
-};
-
-function changeLanguage(lang) {
-    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`btn-${lang}`).classList.add('active');
-    document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (translations[lang][key]) element.innerText = translations[lang][key];
-    });
-}
-
-async function fetchWeather() {
+function initFirebase(config) {
+    if (typeof firebase === 'undefined') return;
     try {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.5167&current_weather=true');
-        const data = await res.json();
-        document.getElementById('temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
-    } catch (e) { console.error("Weather Error:", e); }
+        firebase.initializeApp(config);
+        const db = firebase.database();
+        const likesRef = db.ref('likes');
+        const likeBtn = document.getElementById('like-btn');
+        const countSpan = document.getElementById('like-count');
+        const likeText = document.getElementById('like-text');
+
+        likesRef.on('value', s => {
+            const count = s.val() || 0;
+            if(countSpan) countSpan.innerText = count;
+            if(likeText) likeText.innerHTML = `${count} accounts / 1 <i class="fa-solid fa-heart" style="color:var(--accent);"></i>`;
+        });
+
+        likeBtn.addEventListener('click', () => {
+            const liked = localStorage.getItem('liked');
+            likesRef.transaction(c => (c || 0) + (liked ? -1 : 1));
+            if(liked) { localStorage.removeItem('liked'); likeBtn.classList.remove('liked'); document.getElementById('like-icon').className = "fa-regular fa-heart"; }
+            else { localStorage.setItem('liked', 'true'); likeBtn.classList.add('liked'); document.getElementById('like-icon').className = "fa-solid fa-heart"; }
+        });
+        if(localStorage.getItem('liked')) { likeBtn.classList.add('liked'); document.getElementById('like-icon').className = "fa-solid fa-heart"; }
+    } catch(e) {}
 }
 
-function updateTime() { 
-    const timeEl = document.getElementById('local-time');
-    if(timeEl) timeEl.innerText = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); 
-}
-
-const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*";
-let hackerInterval = null;
-function runHackerEffect(target) {
-    let iteration = 0; clearInterval(hackerInterval);
-    const originalText = target.dataset.value;
-    hackerInterval = setInterval(() => {
-        target.innerText = originalText.split("").map((letter, index) => {
-            if(index < iteration) return originalText[index];
-            return letters[Math.floor(Math.random() * 26)];
-        }).join("");
-        if(iteration >= originalText.length) clearInterval(hackerInterval);
-        iteration += 1 / 3;
-    }, 30);
-}
-
-const rawData = {
-    "ame": {
-        "user": { "id": "741501421936967722", "username": "sb_malizu", "global_name": "MALizU_IIX ~<3", "avatar": "87c81f0a7c19383a48aaecdf96dda77e", "avatar_decoration_data": { "asset": "a_8384f035d67eb209be18aaadf191f25e" } },
-        "user_profile": { "pronouns": "𝖁𝖎𝖑𝖑𝖆𝖎𝖓𝖘 𝖆𝖗𝖊 𝖒𝖆𝖉𝖊,𝖓𝖔𝖙 𝖇𝖔𝖗𝖓", "banner": "a_ba4ae9e432627615c3b1da1d9658281a" },
-        "connected_accounts": [
-            { "type": "discord", "id": "741501421936967722", "name": "sb_malizu" }, { "type": "github", "name": "malizu-IIx" }, { "type": "instagram", "name": "0xygen_ox1de" },
-            { "type": "twitch", "name": "malizu_iix" }, { "type": "xbox", "name": "MALizU11X" }, { "type": "youtube", "name": "MALizU_IIX" }
-        ],
-        "badges": [ { "icon": "2ba85e8026a8614b640c2837bcdfe21b" }, { "icon": "3aa41de486fa12454c3761e8e223442e" } ],
-        "activities": [ { "name": "Visual Studio Code", "type": 0, "details": "Editing style.css", "state": "Workspace: MALizU_IIX profile project" } ]
-    }
-};
-
-function renderPortfolio() {
-    const data = rawData.ame; const user = data.user; const profile = data.user_profile;
-    const bannerEl = document.getElementById('user-banner');
-    if (profile.banner) bannerEl.src = `https://cdn.discordapp.com/banners/${user.id}/${profile.banner}.${profile.banner.startsWith("a_")?"gif":"png"}?size=512`;
-    if (user.avatar_decoration_data) document.getElementById('avatar-decoration').src = `https://cdn.discordapp.com/avatar-decoration-presets/${user.avatar_decoration_data.asset}.png?size=256&passthrough=false`; document.getElementById('avatar-decoration').style.display='block';
-    const nameEl = document.getElementById('global-name');
-    nameEl.innerText = user.global_name; nameEl.dataset.value = user.global_name; nameEl.onmouseover = () => runHackerEffect(nameEl);
-    document.getElementById('username').innerText = `@${user.username}`;
-    document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
-    document.getElementById('bio').innerText = profile.pronouns;
-    const badgeContainer = document.getElementById('badge-container');
-    data.badges.forEach(badge => {
-        const img = document.createElement('img'); img.src = `https://cdn.discordapp.com/badge-icons/${badge.icon}.png`;
-        img.className = 'badge'; img.onerror = () => { img.style.display = 'none'; }; badgeContainer.appendChild(img);
-    });
-    data.activities.forEach(act => {
-        if (act.name === "Visual Studio Code") {
-            document.getElementById('vscode-content').innerHTML = `<p><span class="keyword">const</span> <span class="function">project</span> = <span class="string">"${act.state}"</span>;</p><p><span class="keyword">let</span> <span class="function">task</span> = <span class="string">"${act.details}"</span>;</p><div style="margin-top:10px; font-size:0.8rem; color:#888;"><i class="fa-regular fa-clock"></i> Just now</div>`;
-        }
-    });
-    const socialGrid = document.getElementById('social-grid');
-    const icons = { discord: 'fa-discord', github: 'fa-github', instagram: 'fa-instagram', twitch: 'fa-twitch', youtube: 'fa-youtube', xbox: 'fa-xbox' };
-    const getSocialUrl = (acc) => {
-        switch(acc.type) {
-            case 'discord': return `https://discord.com/users/${acc.id}`; case 'github': return `https://github.com/${acc.name}`; case 'instagram': return `https://instagram.com/${acc.name}`;
-            case 'twitch': return `https://twitch.tv/${acc.name}`; case 'youtube': return `https://youtube.com/@${acc.name}`; case 'xbox': return `https://xboxgamertag.com/search/${acc.name}`; default: return '#';
-        }
-    };
-    data.connected_accounts.forEach(acc => {
-        const a = document.createElement('a'); a.href = getSocialUrl(acc); a.className = 'social-item'; a.target = "_blank";
-        let style = ""; if (acc.type === 'discord') style = "color:#5865F2; font-weight:bold;"; else if (acc.type === 'github') style = "font-weight:bold;"; else if (acc.type === 'instagram') style = "font-weight:bold;";
-        a.innerHTML = `<i class="fa-brands ${icons[acc.type] || 'fa-link'}" style="font-size:1.3rem;"></i><span style="${style}">${acc.name}</span>`;
-        socialGrid.appendChild(a);
-    });
-}
-
-function typeWriter() {
-    const titleText = "malizu.online";
-    let charIndex = 0;
-    let isDeleting = false;
-    const type = () => {
-        const currentText = titleText.substring(0, charIndex);
-        document.title = currentText; 
-        if (!isDeleting && charIndex < titleText.length) { charIndex++; setTimeout(type, 150); }
-        else if (isDeleting && charIndex > 0) { charIndex--; setTimeout(type, 100); }
-        else { isDeleting = !isDeleting; setTimeout(type, isDeleting ? 3000 : 500); }
-    };
-    type();
-}
+function updateTime() { document.getElementById('local-time').innerText = new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}); }
+function fetchWeather() { fetch('https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.51&current_weather=true').then(r=>r.json()).then(d=>document.getElementById('temp').innerText=Math.round(d.current_weather.temperature)+"°C").catch(()=>{}); }

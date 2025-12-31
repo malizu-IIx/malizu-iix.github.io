@@ -3,58 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <title>malizu.online</title>
     <link rel="icon" href="profile.png" type="image/png">
     
-    <meta name="description" content="Portfolio of MALizU_IIX. A Full-Stack Developer in training based in Thailand.">
-    <meta name="keywords" content="MALizU_IIX, Web Developer, Portfolio, Full-Stack, malizu.online">
-    <meta name="author" content="MALizU_IIX">
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "MALizU_IIX",
-      "url": "https://malizu.online",
-      "image": "https://malizu.online/profile.png",
-      "jobTitle": "Full-Stack Developer",
-      "sameAs": [
-        "https://github.com/malizu-IIx",
-        "https://discord.com/users/741501421936967722",
-        "https://instagram.com/0xygen_ox1de",
-        "https://youtube.com/@MALizU_IIX"
-      ]
-    }
-    </script>
-
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://malizu.online/">
-    <meta property="og:title" content="MALizU_IIX ~<3">
-    <meta property="og:description" content="𝖁𝖎𝖑𝖑𝖆𝖎𝖓𝖘 𝖆𝖗𝖊 𝖒𝖆𝖉𝖊,𝖓𝖔𝖙 𝖇𝖔𝖗𝖓 — Web Developer Portfolio">
-    <meta property="og:image" content="https://malizu.online/IIX_logo.png">
-    <meta name="theme-color" content="#EFACAA">
-    <meta name="twitter:card" content="summary_large_image">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
-
     <audio id="theme-audio" loop><source src="theme_music.mp3" type="audio/mp3"></audio>
 
     <div id="preloader">
         <div class="loader-content">
             <img src="IIX_logo.png" alt="IIX Logo" class="loader-logo">
             <div class="loading-bar-box"><div class="loading-bar" id="loading-bar"></div></div>
-            <p class="loading-text" data-i18n="initializing">INITIALIZING...</p>
+            <p class="loading-text">INITIALIZING...</p>
         </div>
     </div>
 
@@ -65,19 +33,21 @@
             <button class="lang-btn" id="btn-jp">JP</button>
         </div>
 
-        <div class="card card-profile tilt-card">
+        <div class="card card-profile tilt-card" style="--delay: 0.1s">
             <div class="banner-container"><img id="user-banner" src="" class="banner-img" alt="Banner"></div>
             <div class="profile-content">
                 <div class="profile-header">
                     <div class="avatar-wrapper">
                         <img id="user-avatar" src="" alt="Avatar" class="avatar">
                         <img id="avatar-decoration" src="" class="avatar-decoration" style="display:none;">
-                        <div class="status-indicator"></div>
+                        <div class="status-indicator" id="status-indicator"></div>
                     </div>
-                    <div class="names" style="position: relative;">
-                        <h1 id="global-name" data-value="Loading...">Loading...</h1>
-                        <span id="username" onclick="copyDiscordID()" style="cursor: pointer;">@...</span>
-                        <div id="copy-tooltip" class="tooltip">Copied!</div>
+                    <div class="names">
+                        <h1 id="global-name">Loading...</h1>
+                        <div class="username-box" onclick="copyDiscordID()">
+                            <span id="username">@...</span>
+                            <div id="copy-tooltip" class="tooltip" data-i18n="copied">Copied!</div>
+                        </div>
                         <div class="badges-row" id="badge-container"></div>
                     </div>
                 </div>
@@ -85,76 +55,90 @@
             </div>
         </div>
 
-        <div class="card card-status tilt-card">
-            <div class="code-header"><i class="fa-solid fa-code"></i> Visual Studio Code</div>
-            <div class="code-content" id="vscode-content"><p>Idle...</p></div>
-        </div>
-
-        <div class="card card-music tilt-card">
-            <div class="music-wrapper">
-                <div class="music-header">
-                    <div class="music-icon-box"><i class="fa-solid fa-music"></i></div>
-                    <div class="music-details">
-                        <h4 data-i18n="music_title">Theme Music</h4>
-                        <p>Background Vibes</p>
-                    </div>
-                    <div class="equalizer" id="equalizer"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-                </div>
-                <div class="controls">
-                    <button class="play-btn" id="play-btn"><i class="fa-solid fa-play"></i></button>
-                    <div class="volume-container">
-                        <i class="fa-solid fa-volume-low volume-icon"></i>
-                        <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
-                    </div>
-                </div>
+        <div class="card card-status tilt-card" style="--delay: 0.2s">
+            <div class="code-header"><i class="fa-solid fa-code"></i> Activity</div>
+            <div class="code-content" id="vscode-content">
+                <p style="color:#888;">Fetching status...</p>
             </div>
         </div>
 
-        <div class="card card-social tilt-card">
+        <div class="card card-social tilt-card" style="--delay: 0.3s">
             <h3 data-i18n="connect">Connect</h3>
             <div class="social-grid" id="social-grid"></div>
         </div>
 
-        <div class="card card-tech tilt-card">
+        <div class="card card-tech tilt-card" style="--delay: 0.4s">
             <h3 data-i18n="tech_stack">Tech Stack</h3>
             <p class="tech-subtitle" data-i18n="tech_subtitle">Full-Stack Developer in training.</p>
             <div class="tech-list">
-                <i class="fa-brands fa-html5 tech-icon" title="HTML5"></i>
-                <i class="fa-brands fa-css3-alt tech-icon" title="CSS3"></i>
-                <i class="fa-brands fa-js tech-icon" title="JavaScript"></i>
-                <i class="fa-brands fa-react tech-icon" title="React"></i>
-                <i class="fa-brands fa-node tech-icon" title="Node.js"></i>
-                <i class="fa-brands fa-github tech-icon" title="Git"></i>
+                <i class="fa-brands fa-html5 tech-icon"></i>
+                <i class="fa-brands fa-css3-alt tech-icon"></i>
+                <i class="fa-brands fa-js tech-icon"></i>
+                <i class="fa-brands fa-react tech-icon"></i>
+                <i class="fa-brands fa-node tech-icon"></i>
+                <i class="fa-brands fa-github tech-icon"></i>
             </div>
             <div class="review-container">
                 <span class="review-label" id="like-text">Loading...</span>
-                <button class="like-btn" id="like-btn" title="Give a heart!">
+                <button class="like-btn" id="like-btn">
                     <i class="fa-regular fa-heart" id="like-icon"></i>
                     <span id="like-count">0</span>
                 </button>
             </div>
         </div>
 
-        <div class="card card-stats tilt-card">
+        <div class="card card-stats tilt-card" style="--delay: 0.5s">
             <div>
                 <i class="fa-solid fa-earth-asia" style="font-size: 2.5rem; color: var(--accent);"></i>
                 <h3 style="margin-top:15px;" data-i18n="location">Thailand</h3>
-                <p class="time-text" id="local-time">Loading time...</p>
+                <p class="time-text" id="local-time">--:--</p>
             </div>
         </div>
 
-        <div class="card card-weather tilt-card">
+        <div class="card card-weather tilt-card" style="--delay: 0.6s">
             <div class="weather-icon"><i class="fa-solid fa-cloud-sun"></i></div>
             <div class="weather-info">
                 <h2 id="temp">--°C</h2>
-                <p id="weather-desc">Bangkok</p>
+                <p id="weather-desc" data-i18n="weather_desc">Bangkok</p>
             </div>
         </div>
+
+        <a href="https://nattapat2871.me/" target="_blank" class="card card-friend tilt-card" style="--delay: 0.7s">
+            <div class="friend-logo">N</div>
+            <div class="friend-info">
+                <h3 data-i18n="friend_title">My Friend</h3>
+                <p data-i18n="friend_subtitle">Nattapat's Portfolio <i class="fa-solid fa-arrow-up-right-from-square"></i></p>
+            </div>
+        </a>
+
+        <div class="card card-spotify tilt-card" id="spotify-card" style="--delay: 0.8s">
+            <div class="spotify-header"><i class="fa-brands fa-spotify"></i> Spotify</div>
+            <div class="spotify-content" id="spotify-content">
+                <p style="color:#666;">Not listening...</p>
+            </div>
+        </div>
+
+        <div class="card card-theme tilt-card" style="--delay: 0.9s">
+            <div class="theme-header">
+                <i class="fa-solid fa-compact-disc"></i> BGM
+            </div>
+            <div class="theme-content">
+                <div class="theme-art"><i class="fa-solid fa-music"></i></div>
+                <div class="theme-info-box">
+                    <h4 data-i18n="music_title">Theme Music</h4>
+                    <p data-i18n="music_subtitle">Background Vibes</p>
+                    <div class="theme-controls">
+                        <button class="play-btn" id="play-btn"><i class="fa-solid fa-play"></i></button>
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
     <script src="script.js"></script>
 </body>
 </html>
