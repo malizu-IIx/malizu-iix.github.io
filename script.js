@@ -1,184 +1,310 @@
-// ข้อมูลดิบจาก JSON
+document.addEventListener('DOMContentLoaded', () => {
+    // 🔥 CONFIG FIREBASE
+    const firebaseConfig = {
+        apiKey: "AIzaSyD2eunvUePQmjBKXWL2wf19Rg_yr7vezkE",
+        authDomain: "malizu-profile-project.firebaseapp.com",
+        databaseURL: "https://malizu-profile-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "malizu-profile-project",
+        storageBucket: "malizu-profile-project.firebasestorage.app",
+        messagingSenderId: "811283157266",
+        appId: "1:811283157266:web:66d82d1cf2fbcd275763cb",
+        measurementId: "G-ERZ9GYSXY0"
+    };
+
+    // --- OPTIMIZED FIREBASE LOGIC ---
+    try {
+        if (typeof firebase !== 'undefined' && firebaseConfig.apiKey) {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+            const likesRef = db.ref('likes');
+
+            const likeBtn = document.getElementById('like-btn');
+            const likeIcon = document.getElementById('like-icon');
+            const likeCountSpan = document.getElementById('like-count');
+            const likeText = document.getElementById('like-text');
+
+            // Listen for updates (Realtime)
+            likesRef.on('value', (snapshot) => {
+                const currentLikes = snapshot.val() || 0;
+                if(likeCountSpan) likeCountSpan.innerText = currentLikes;
+                if(likeText) likeText.innerHTML = `${currentLikes} accounts / 1 <i class="fa-solid fa-heart" style="color:var(--accent);"></i>`;
+            });
+
+            // Check Local Storage
+            if (localStorage.getItem('isLiked') === 'true') {
+                likeBtn.classList.add('liked');
+                likeIcon.classList.remove('fa-regular');
+                likeIcon.classList.add('fa-solid');
+            }
+
+            // Click Event
+            likeBtn.addEventListener('click', () => {
+                if (localStorage.getItem('isLiked') === 'true') {
+                    likesRef.transaction(current => (current || 0) - 1);
+                    localStorage.removeItem('isLiked');
+                    likeBtn.classList.remove('liked');
+                    likeIcon.classList.remove('fa-solid');
+                    likeIcon.classList.add('fa-regular');
+                } else {
+                    likesRef.transaction(current => (current || 0) + 1);
+                    localStorage.setItem('isLiked', 'true');
+                    likeBtn.classList.add('liked');
+                    likeIcon.classList.remove('fa-regular');
+                    likeIcon.classList.add('fa-solid');
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Firebase Error:", e);
+    }
+
+    // --- SETUP EVENT LISTENERS ---
+    const setupListener = (id, event, handler) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(event, handler);
+    };
+
+    setupListener('btn-en', 'click', () => changeLanguage('en'));
+    setupListener('btn-th', 'click', () => changeLanguage('th'));
+    setupListener('btn-jp', 'click', () => changeLanguage('jp'));
+    setupListener('play-btn', 'click', toggleMusic);
+    setupListener('username', 'click', copyDiscordID);
+
+    const volSlider = document.getElementById('volume-slider');
+    if(volSlider) {
+        volSlider.addEventListener('input', (e) => {
+            const vol = e.target.value;
+            const audio = document.getElementById('theme-audio');
+            if(audio) audio.volume = vol;
+            const percent = vol * 100;
+            e.target.style.background = `linear-gradient(to right, var(--accent) ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
+        });
+        volSlider.dispatchEvent(new Event('input'));
+    }
+
+    // --- OPTIMIZED PRELOADER ---
+    const bar = document.getElementById('loading-bar');
+    const preloader = document.getElementById('preloader');
+    const mainContent = document.getElementById('main-content');
+    
+    let width = 0;
+    function animateLoader() {
+        if (width >= 100) {
+            preloader.style.opacity = '0';
+            preloader.style.visibility = 'hidden';
+            document.body.style.overflow = 'auto';
+            setTimeout(() => { mainContent.classList.add('loaded'); }, 200);
+        } else {
+            width += 1.5; 
+            if(bar) bar.style.width = width + '%';
+            requestAnimationFrame(animateLoader);
+        }
+    }
+    requestAnimationFrame(animateLoader);
+
+    // --- OTHER INITS ---
+    fetchWeather();
+    setInterval(updateTime, 1000);
+    renderPortfolio();
+    typeWriter();
+    
+    // Initialize Cursor and Tilt optimization
+    initOptimizedInteractions();
+});
+
+// --- PERFORMANCE OPTIMIZED MOUSE & TILT LOGIC ---
+function initOptimizedInteractions() {
+    const cursorDot = document.querySelector('.cursor-dot');
+    const cursorOutline = document.querySelector('.cursor-outline');
+    const cards = document.querySelectorAll('.tilt-card');
+
+    if (!cursorDot || !cursorOutline) return; // Safety check
+
+    let mouseX = window.innerWidth / 2; // Default to center
+    let mouseY = window.innerHeight / 2;
+    let cursorX = mouseX, cursorY = mouseY;
+    let isMoving = false;
+
+    // Track mouse position
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        isMoving = true;
+        // Make visible on first move
+        cursorDot.style.opacity = '1';
+        cursorOutline.style.opacity = '1';
+    });
+
+    // Handle Hover States
+    document.querySelectorAll('a, button, input[type=range], #username').forEach(el => {
+        el.addEventListener('mouseenter', () => cursorOutline.classList.add('hovered'));
+        el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hovered'));
+    });
+
+    // Animation Loop
+    function animate() {
+        // Smooth Cursor Follow (Lerp)
+        // Move dot instantly
+        cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+        
+        // Move outline with lag
+        cursorX += (mouseX - cursorX) * 0.15;
+        cursorY += (mouseY - cursorY) * 0.15;
+        cursorOutline.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
+
+        // Tilt Effect
+        if (isMoving) {
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                if (mouseX >= rect.left - 50 && mouseX <= rect.right + 50 &&
+                    mouseY >= rect.top - 50 && mouseY <= rect.bottom + 50) {
+                    
+                    const x = mouseX - rect.left;
+                    const y = mouseY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -4;
+                    const rotateY = ((x - centerX) / centerX) * 4;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
+                } else {
+                    if(card.style.transform !== '') card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+                }
+            });
+        }
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+// --- HELPER FUNCTIONS ---
+function copyDiscordID() {
+    const username = document.getElementById('username').innerText.replace('@', '');
+    navigator.clipboard.writeText(username);
+    const tooltip = document.getElementById('copy-tooltip');
+    tooltip.classList.add('show');
+    setTimeout(() => tooltip.classList.remove('show'), 2000);
+}
+
+let isPlaying = false;
+function toggleMusic() {
+    const audio = document.getElementById('theme-audio');
+    const playBtn = document.getElementById('play-btn');
+    const bars = document.querySelectorAll('.bar');
+    if (isPlaying) { 
+        audio.pause(); 
+        playBtn.innerHTML = '<i class="fa-solid fa-play"></i>'; 
+        bars.forEach(b => b.classList.remove('playing')); 
+    } else { 
+        audio.play(); 
+        playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>'; 
+        bars.forEach(b => b.classList.add('playing')); 
+    }
+    isPlaying = !isPlaying;
+}
+
+const translations = {
+    en: { initializing: "INITIALIZING...", connect: "Connect", tech_stack: "Tech Stack", tech_subtitle: "Full-Stack Developer in training.", location: "Thailand", music_title: "Theme Music", status_idle: "Idle..." },
+    th: { initializing: "กำลังเริ่มต้น...", connect: "ช่องทางติดต่อ", tech_stack: "เทคโนโลยีที่ใช้", tech_subtitle: "กำลังฝึกฝนเป็น Full-Stack Developer", location: "ประเทศไทย", music_title: "เพลงธีม", status_idle: "ว่าง..." },
+    jp: { initializing: "読み込み中...", connect: "リンク", tech_stack: "技術スタック", tech_subtitle: "フルスタックエンジニアを目指して勉強中", location: "タイ", music_title: "テーマ音楽", status_idle: "アイドル状態..." }
+};
+
+function changeLanguage(lang) {
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`btn-${lang}`).classList.add('active');
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang][key]) element.innerText = translations[lang][key];
+    });
+}
+
+async function fetchWeather() {
+    try {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.5167&current_weather=true');
+        const data = await res.json();
+        document.getElementById('temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
+    } catch (e) { console.error("Weather Error:", e); }
+}
+
+function updateTime() { 
+    const timeEl = document.getElementById('local-time');
+    if(timeEl) timeEl.innerText = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); 
+}
+
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*";
+let hackerInterval = null;
+function runHackerEffect(target) {
+    let iteration = 0; clearInterval(hackerInterval);
+    const originalText = target.dataset.value;
+    hackerInterval = setInterval(() => {
+        target.innerText = originalText.split("").map((letter, index) => {
+            if(index < iteration) return originalText[index];
+            return letters[Math.floor(Math.random() * 26)];
+        }).join("");
+        if(iteration >= originalText.length) clearInterval(hackerInterval);
+        iteration += 1 / 3;
+    }, 30);
+}
+
 const rawData = {
     "ame": {
-        "user": {
-            "id": "741501421936967722",
-            "username": "sb_malizu",
-            "global_name": "MALizU_IIX ~&lt;3",
-            "discriminator": "0",
-            "display_name_styles": { "font_id": 10, "effect_id": 2, "colors": [15709354, 14970082] },
-            "public_flags": 256,
-            "avatar": "87c81f0a7c19383a48aaecdf96dda77e",
-            "avatar_decoration_data": { "asset": "a_8384f035d67eb209be18aaadf191f25e", "sku_id": "1440174638930853951", "expires_at": 1768507200 },
-            "collectibles": { "nameplate": { "asset": "nameplates/nameplates/angels/", "palette": "bubble_gum", "label": "COLLECTIBLES_NAMEPLATES_ANGELS_A11Y", "sku_id": "1349849614311751731", "expires_at": null } },
-            "primary_guild": { "identity_guild_id": "963760374543450182", "identity_enabled": true, "tag": "WUWA", "badge": "bb6f447245dd4c9243d2aeb61d26154d" }
-        },
-        "user_profile": {
-            "bio": "",
-            "pronouns": "𝖁𝖎𝖑𝖑𝖆𝖎𝖓𝖘 𝖆𝖗𝖊 𝖒𝖆𝖉𝖊,𝖓𝖔𝖙 𝖇𝖔𝖗𝖓",
-            "profile_effect": { "id": "1404558257288253632", "sku_id": "1404558257275539466", "expires_at": null },
-            "accent_color": 10871781,
-            "banner": "a_ba4ae9e432627615c3b1da1d9658281a",
-            "banner_color": null,
-            "theme_colors": [15709354, 14970082]
-        },
+        "user": { "id": "741501421936967722", "username": "sb_malizu", "global_name": "MALizU_IIX ~<3", "avatar": "87c81f0a7c19383a48aaecdf96dda77e", "avatar_decoration_data": { "asset": "a_8384f035d67eb209be18aaadf191f25e" } },
+        "user_profile": { "pronouns": "𝖁𝖎𝖑𝖑𝖆𝖎𝖓𝖘 𝖆𝖗𝖊 𝖒𝖆𝖉𝖊,𝖓𝖔𝖙 𝖇𝖔𝖗𝖓", "banner": "a_ba4ae9e432627615c3b1da1d9658281a" },
         "connected_accounts": [
-            // เพิ่ม Discord เองตรงนี้ (Manual Inject)
-            { "type": "discord", "id": "741501421936967722", "name": "sb_malizu", "verified": true },
-            { "type": "github", "id": "217094843", "name": "malizu-IIx", "verified": true },
-            { "type": "instagram", "id": "7024886727575793", "name": "0xygen_ox1de", "verified": true },
-            { "type": "twitch", "id": "1004406967", "name": "malizu_iix", "verified": true },
-            { "type": "xbox", "id": "3069085452309706", "name": "MALizU11X", "verified": true },
-            { "type": "youtube", "id": "UCX331yC1tuESfRKdKBXaXjQ", "name": "MALizU_IIX", "verified": true }
+            { "type": "discord", "id": "741501421936967722", "name": "sb_malizu" }, { "type": "github", "name": "malizu-IIx" }, { "type": "instagram", "name": "0xygen_ox1de" },
+            { "type": "twitch", "name": "malizu_iix" }, { "type": "xbox", "name": "MALizU11X" }, { "type": "youtube", "name": "MALizU_IIX" }
         ],
-        "premium_type": 2,
-        "premium_since": "2025-12-28T19:23:04.910709+00:00",
-        "premium_guild_since": null,
-        "badges": [
-            { "id": "premium", "description": "Subscriber since 28 Dec 2025", "icon": "2ba85e8026a8614b640c2837bcdfe21b", "link": "https://discord.com/settings/premium" },
-            { "id": "hypesquad_house_3", "description": "HypeSquad Balance", "icon": "3aa41de486fa12454c3761e8e223442e" },
-            { "id": "quest_completed", "description": "Completed a Quest", "icon": "7d9ae358c8c5e118768335dbe68b4fb8", "link": "https://discord.com/discovery/quests" }
-        ],
-        "guild_badges": [],
-        "widgets": [],
-        "discord_status": "online",
-        "active_on_discord_web": false,
-        "active_on_discord_desktop": true,
-        "active_on_discord_mobile": true,
-        "activities": [
-            { "name": "Wanna be Full-Stack", "type": 4, "state": "Wanna be Full-Stack", "id": "custom", "created_at": 1766997262111 },
-            {
-                "name": "YouTube Music", "type": 2, "details": "her", "state": "JVKE", "session_id": "h:0b27a238be3194f471af82bf042b", "application_id": "463151177836658699",
-                "timestamps": { "start": 1767000355000, "end": 1767000527000 },
-                "assets": {
-                    "large_image": "https://media.discordapp.net/external/QTIR1Jz-5bFC0PCrzAqS_swCWcJ44SlEy5kusoddIK8/https/lh3.googleusercontent.com/tv7KIpSS_mEPgmqfB5EqLZulvwDFRw0UQxyArDLTVqc_1Le5ZEqJCpa1Wh8h_2pkR3QdL4MHsXuMoas%3Dw544-h544-l90-rj",
-                    "large_text": "her", "small_image": null, "small_text": null
-                }, "created_at": 1767000357832
-            },
-            {
-                "name": "Visual Studio Code", "type": 0, "details": "Editing style.css", "state": "Workspace: MALizU_IIX profile project",
-                "session_id": "196e34dad51ba5437e1cceade1241b5d", "application_id": "383226320970055681",
-                "timestamps": { "start": 1766999622201 },
-                "assets": {
-                    "large_image": "https://cdn.discordapp.com/app-assets/383226320970055681/1359298399085527152.png",
-                    "large_text": "Editing a CSS file", "small_image": "https://cdn.discordapp.com/app-assets/383226320970055681/1359299466493956258.png", "small_text": "Visual Studio Code"
-                }, "created_at": 1766999884323
-            }
-        ]
+        "badges": [ { "icon": "2ba85e8026a8614b640c2837bcdfe21b" }, { "icon": "3aa41de486fa12454c3761e8e223442e" } ],
+        "activities": [ { "name": "Visual Studio Code", "type": 0, "details": "Editing style.css", "state": "Workspace: MALizU_IIX profile project" } ]
     }
 };
 
 function renderPortfolio() {
-    console.log("Rendering Portfolio...");
-    const data = rawData.ame;
-    const user = data.user;
-    const profile = data.user_profile;
-    const activities = data.activities;
-
-    // --- 1. Profile Section ---
-    document.getElementById('global-name').innerText = user.global_name;
+    const data = rawData.ame; const user = data.user; const profile = data.user_profile;
+    const bannerEl = document.getElementById('user-banner');
+    if (profile.banner) bannerEl.src = `https://cdn.discordapp.com/banners/${user.id}/${profile.banner}.${profile.banner.startsWith("a_")?"gif":"png"}?size=512`;
+    if (user.avatar_decoration_data) document.getElementById('avatar-decoration').src = `https://cdn.discordapp.com/avatar-decoration-presets/${user.avatar_decoration_data.asset}.png?size=256&passthrough=false`; document.getElementById('avatar-decoration').style.display='block';
+    const nameEl = document.getElementById('global-name');
+    nameEl.innerText = user.global_name; nameEl.dataset.value = user.global_name; nameEl.onmouseover = () => runHackerEffect(nameEl);
     document.getElementById('username').innerText = `@${user.username}`;
     document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
     document.getElementById('bio').innerText = profile.pronouns;
-
-    // Badges
     const badgeContainer = document.getElementById('badge-container');
     data.badges.forEach(badge => {
-        const img = document.createElement('img');
-        img.src = `https://cdn.discordapp.com/badge-icons/${badge.icon}.png`;
-        img.className = 'badge';
-        img.title = badge.description;
-        img.onerror = () => { img.src = 'https://cdn-icons-png.flaticon.com/512/10629/10629607.png'; }; 
-        badgeContainer.appendChild(img);
+        const img = document.createElement('img'); img.src = `https://cdn.discordapp.com/badge-icons/${badge.icon}.png`;
+        img.className = 'badge'; img.onerror = () => { img.style.display = 'none'; }; badgeContainer.appendChild(img);
     });
-
-    // --- 2. Activities Logic ---
-    activities.forEach(act => {
-        if (act.id === "custom") {
-            document.getElementById('custom-status').innerText = `"${act.state}"`;
-        }
+    data.activities.forEach(act => {
         if (act.name === "Visual Studio Code") {
-            const vscodeHtml = `
-                <p><span class="keyword">const</span> <span class="function">project</span> = <span class="string">"${act.state}"</span>;</p>
-                <p><span class="keyword">let</span> <span class="function">task</span> = <span class="string">"${act.details}"</span>;</p>
-                <p><span class="keyword">return</span> <span class="function">Coffee</span>();</p>
-                <div style="margin-top:10px; font-size:0.8rem; color:#888;">
-                    <i class="fa-regular fa-clock"></i> Just now
-                </div>
-            `;
-            document.getElementById('vscode-content').innerHTML = vscodeHtml;
-        }
-        if (act.type === 2) {
-            const musicArt = document.getElementById('music-art');
-            const musicInfo = document.getElementById('music-info');
-            let imgUrl = act.assets.large_image;
-            if (imgUrl.startsWith("mp:external/")) {
-                imgUrl = imgUrl.replace("mp:external/", "https://media.discordapp.net/external/");
-            }
-            musicArt.src = imgUrl;
-            musicArt.style.display = 'block';
-            musicInfo.innerHTML = `
-                <h4 style="color:var(--accent)">${act.details}</h4>
-                <p>${act.state}</p>
-            `;
-            document.getElementById('equalizer').style.opacity = '1';
+            document.getElementById('vscode-content').innerHTML = `<p><span class="keyword">const</span> <span class="function">project</span> = <span class="string">"${act.state}"</span>;</p><p><span class="keyword">let</span> <span class="function">task</span> = <span class="string">"${act.details}"</span>;</p><div style="margin-top:10px; font-size:0.8rem; color:#888;"><i class="fa-regular fa-clock"></i> Just now</div>`;
         }
     });
-
-    // --- 3. Socials (Links Updated) ---
     const socialGrid = document.getElementById('social-grid');
-    const icons = {
-        discord: 'fa-discord', // เพิ่มไอคอน Discord
-        github: 'fa-github',
-        instagram: 'fa-instagram',
-        twitch: 'fa-twitch',
-        youtube: 'fa-youtube',
-        xbox: 'fa-xbox',
-        riotgames: 'fa-gamepad'
-    };
-
-    // ฟังก์ชันสร้างลิงก์ที่ฉลาดขึ้น
+    const icons = { discord: 'fa-discord', github: 'fa-github', instagram: 'fa-instagram', twitch: 'fa-twitch', youtube: 'fa-youtube', xbox: 'fa-xbox' };
     const getSocialUrl = (acc) => {
         switch(acc.type) {
-            case 'discord': return `https://discord.com/users/${acc.id}`; // ใช้ ID สำหรับ Discord
-            case 'github': return `https://github.com/${acc.name}`;
-            case 'instagram': return `https://instagram.com/${acc.name}`;
-            case 'twitch': return `https://twitch.tv/${acc.name}`;
-            case 'youtube': return `https://youtube.com/@${acc.name}`;
-            case 'xbox': return `https://xboxgamertag.com/search/${acc.name}`;
-            default: return '#';
+            case 'discord': return `https://discord.com/users/${acc.id}`; case 'github': return `https://github.com/${acc.name}`; case 'instagram': return `https://instagram.com/${acc.name}`;
+            case 'twitch': return `https://twitch.tv/${acc.name}`; case 'youtube': return `https://youtube.com/@${acc.name}`; case 'xbox': return `https://xboxgamertag.com/search/${acc.name}`; default: return '#';
         }
     };
-
     data.connected_accounts.forEach(acc => {
-        const iconClass = icons[acc.type] || 'fa-link';
-        const targetUrl = getSocialUrl(acc);
-        
-        const a = document.createElement('a');
-        a.href = targetUrl;
-        a.className = 'social-item';
-        a.target = "_blank"; // Open in new tab
-        
-        // Highlight logic
-        let style = "font-size:0.9rem;";
-        // ให้ Discord, GitHub, IG เด่นเป็นพิเศษ
-        if (['discord', 'github', 'instagram'].includes(acc.type)) {
-             style += "font-weight:bold; color:var(--text-main);";
-             if(acc.type === 'discord') style += "color:#5865F2;"; // Discord Blurple color
-        }
-
-        a.innerHTML = `
-            <i class="fa-brands ${iconClass}" style="font-size:1.2rem;"></i>
-            <span style="${style}">${acc.name}</span>
-        `;
+        const a = document.createElement('a'); a.href = getSocialUrl(acc); a.className = 'social-item'; a.target = "_blank";
+        let style = ""; if (acc.type === 'discord') style = "color:#5865F2; font-weight:bold;"; else if (acc.type === 'github') style = "font-weight:bold;"; else if (acc.type === 'instagram') style = "font-weight:bold;";
+        a.innerHTML = `<i class="fa-brands ${icons[acc.type] || 'fa-link'}" style="font-size:1.3rem;"></i><span style="${style}">${acc.name}</span>`;
         socialGrid.appendChild(a);
     });
-
-    // --- 4. Clock ---
-    setInterval(() => {
-        const now = new Date();
-        document.getElementById('local-time').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    }, 1000);
 }
 
-document.addEventListener('DOMContentLoaded', renderPortfolio);
+function typeWriter() {
+    const titleText = "malizu.online";
+    let charIndex = 0;
+    let isDeleting = false;
+    const type = () => {
+        const currentText = titleText.substring(0, charIndex);
+        document.title = currentText; 
+        if (!isDeleting && charIndex < titleText.length) { charIndex++; setTimeout(type, 150); }
+        else if (isDeleting && charIndex > 0) { charIndex--; setTimeout(type, 100); }
+        else { isDeleting = !isDeleting; setTimeout(type, isDeleting ? 3000 : 500); }
+    };
+    type();
+}
