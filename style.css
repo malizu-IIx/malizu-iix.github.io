@@ -10,34 +10,81 @@
     --friend-accent: #00c6ff;
     --spotify-green: #1DB954;
     --youtube-red: #FF0000;
-    --noise-pattern: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.05"/%3E%3C/svg%3E');
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     background-color: #130a0a;
-    background-image: 
-        radial-gradient(circle at 15% 50%, rgba(239, 172, 170, 0.08), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(0, 198, 255, 0.08), transparent 25%);
-    background-size: 100% 100%;
     color: var(--text-main);
     font-family: 'Outfit', 'Noto Sans Thai', sans-serif;
     min-height: 100vh;
     display: flex; justify-content: center; align-items: center;
     padding: 2rem; overflow-x: hidden; font-size: 1rem;
-    animation: bgPulse 10s infinite alternate;
 }
-@keyframes bgPulse { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
 
-/* --- CURSOR --- */
+/* CANVAS SNOW */
+#snow-canvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; 
+    background: radial-gradient(circle at 50% 50%, #1a1a20, #0f0f11);
+    opacity: 0; transition: opacity 2s ease; pointer-events: none;
+}
+#snow-canvas.visible { opacity: 1; }
+
+#intro-layer {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 15, 17, 0.98);
+    z-index: 9999;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    overflow: hidden;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* MARQUEE */
+.marquee-wrapper {
+    width: 100%; display: flex; flex-direction: column; gap: 30px;
+    margin-bottom: 60px; transform: rotate(-3deg) scale(1.1);
+    pointer-events: none;
+}
+.marquee-row { display: flex; gap: 0; width: 300%; }
+.marquee-text {
+    font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 6vw;
+    white-space: nowrap; color: rgba(255, 255, 255, 0.05); -webkit-text-stroke: 0;
+}
+.marquee-text.outline { color: rgba(239, 172, 170, 0.08); }
+@media (max-width: 768px) { .marquee-text { font-size: 3.5rem; } }
+
+.enter-container { text-align: center; position: relative; z-index: 10; }
+#enter-btn {
+    position: relative; padding: 18px 50px; background: transparent;
+    border: 1px solid rgba(255,255,255,0.2); color: #fff;
+    font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: bold;
+    cursor: pointer; overflow: hidden; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    letter-spacing: 3px; border-radius: 4px;
+}
+#enter-btn:hover { 
+    background: var(--accent); color: #000; border-color: var(--accent);
+    box-shadow: 0 0 40px var(--accent-glow); transform: scale(1.05);
+}
+.intro-hint { margin-top: 20px; color: #666; font-size: 0.8rem; font-family: 'JetBrains Mono'; letter-spacing: 1px; animation: blink 2s infinite; }
+@keyframes blink { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+/* MAIN CONTENT */
+#main-content {
+    opacity: 0; filter: blur(20px); transform: scale(0.95);
+    transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+#main-content.active { opacity: 1; filter: blur(0); transform: scale(1); }
+
+/* CURSOR */
 @media (pointer: fine) { .cursor-dot, .cursor-outline { display: block; } * { cursor: none; } }
 @media (pointer: coarse) { .cursor-dot, .cursor-outline { display: none; } }
 .cursor-dot { width: 8px; height: 8px; background: var(--accent); position: fixed; top: 0; left: 0; transform: translate(-50%,-50%); border-radius: 50%; z-index: 9999; pointer-events: none; }
 .cursor-outline { width: 40px; height: 40px; border: 2px solid var(--accent); position: fixed; top: 0; left: 0; transform: translate(-50%,-50%); border-radius: 50%; z-index: 9999; pointer-events: none; transition: width 0.2s, height 0.2s, background 0.2s; will-change: transform; }
 body:hover .cursor-outline.hovered { width: 60px; height: 60px; background: rgba(239, 172, 170, 0.1); border-color: transparent; }
 
-/* --- GRID LAYOUT --- */
+/* GRID */
 .container {
     width: 100%; max-width: 1480px;
     display: grid;
@@ -49,53 +96,25 @@ body:hover .cursor-outline.hovered { width: 60px; height: 60px; background: rgba
         "profile profile social stats"
         "tech    tech    social weather"
         "friend  friend  spotify theme"; 
-    opacity: 0; transform: translateY(30px); 
-    transition: opacity 1s ease, transform 1s ease;
 }
-.container.loaded { opacity: 1; transform: translateY(0); }
 
-/* --- CARD STYLES --- */
+/* CARDS */
 .card { 
     background: var(--card-bg); border: 1px solid var(--card-border); 
     border-radius: 24px; padding: 1.5rem; 
     backdrop-filter: blur(20px) saturate(180%); 
     box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative;
     display: flex; flex-direction: column; overflow: hidden;
-    
     transform-style: preserve-3d; transform: perspective(1000px);
     transition: transform 0.1s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
     will-change: transform;
-    opacity: 0; animation: fadeInUp 0.8s forwards; 
-    animation-delay: var(--delay);
 }
-
-/* 🔥 HOVER GLOW EFFECTS 🔥 */
-.card:hover {
-    border-color: var(--accent);
-    box-shadow: 
-        0 8px 32px rgba(0,0,0,0.3),
-        0 0 25px 2px rgba(239, 172, 170, 0.3), 
-        inset 0 0 10px rgba(239, 172, 170, 0.1);
-}
-.card.is-youtube:hover {
-    border-color: #FF0000 !important;
-    box-shadow: 
-        0 8px 32px rgba(0,0,0,0.3),
-        0 0 25px 5px rgba(255, 0, 0, 0.4), 
-        inset 0 0 15px rgba(255, 0, 0, 0.2) !important;
-}
-.card.is-spotify:hover {
-    border-color: #1DB954 !important;
-    box-shadow: 
-        0 8px 32px rgba(0,0,0,0.3),
-        0 0 25px 5px rgba(29, 185, 84, 0.4), 
-        inset 0 0 15px rgba(29, 185, 84, 0.2) !important;
-}
-
-@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+.card:hover { border-color: var(--accent); box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 25px 2px rgba(239, 172, 170, 0.3), inset 0 0 10px rgba(239, 172, 170, 0.1); }
+.card.is-youtube:hover { border-color: #FF0000 !important; box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 25px 5px rgba(255, 0, 0, 0.4), inset 0 0 15px rgba(255, 0, 0, 0.2) !important; }
+.card.is-spotify:hover { border-color: #1DB954 !important; box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 25px 5px rgba(29, 185, 84, 0.4), inset 0 0 15px rgba(29, 185, 84, 0.2) !important; }
 .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: var(--noise-pattern); opacity: 0.4; z-index: -1; pointer-events: none; }
 
-/* --- COMPONENTS --- */
+/* LAYOUT */
 .card-profile { grid-area: profile; padding: 0; background: rgba(20, 20, 25, 0.85); }
 .card-status { grid-area: status; background: #1e1e1e; justify-content: center; border-color: rgba(255,255,255,0.05); }
 .card-tech { grid-area: tech; }
@@ -118,10 +137,6 @@ body:hover .cursor-outline.hovered { width: 60px; height: 60px; background: rgba
 .badge { width: 26px; height: 26px; transition: transform 0.2s; }
 .badge:hover { transform: scale(1.2); }
 .bio-box { background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border-left: 3px solid var(--accent); margin-top: 1rem; font-size: 1rem; backdrop-filter: blur(5px); }
-
-.username-box { position: relative; display: inline-block; cursor: pointer; }
-.tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--accent); color: #000; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; pointer-events: none; opacity: 0; transition: 0.2s; white-space: nowrap; margin-bottom: 5px; }
-.tooltip.show { opacity: 1; transform: translateX(-50%) translateY(-5px); }
 
 .code-header { font-size: 1rem; color: #569cd6; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
 .code-content { font-size: 1rem; line-height: 1.6; height: 100%; display: flex; flex-direction: column; justify-content: center; }
@@ -147,14 +162,6 @@ body:hover .cursor-outline.hovered { width: 60px; height: 60px; background: rgba
 .weather-info p { color: var(--text-sub); margin-top: 5px; font-size: 1.2rem; }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-.card-friend { grid-area: friend; flex-direction: row !important; align-items: center; gap: 25px; background: linear-gradient(135deg, rgba(20, 20, 25, 0.8), rgba(0, 198, 255, 0.15)) !important; border: 1px solid rgba(0, 198, 255, 0.3) !important; text-decoration: none; color: #fff; transition: transform 0.3s, box-shadow 0.3s; padding: 1.5rem !important; }
-.card-friend:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 198, 255, 0.25); border-color: var(--friend-accent) !important; }
-.friend-logo { width: 70px; height: 70px; background: linear-gradient(135deg, #00C6FF, #0072FF); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; color: #fff; flex-shrink: 0; box-shadow: 0 0 15px rgba(0, 198, 255, 0.5); position: relative; overflow: hidden; }
-.friend-logo::after { content: ''; position: absolute; width: 100%; height: 100%; background: linear-gradient(rgba(255,255,255,0.4), transparent); top: -100%; left: -100%; transform: rotate(45deg); animation: shine 3s infinite; }
-@keyframes shine { 0%, 100% { top: -100%; left: -100%; } 50% { top: 100%; left: 100%; } }
-.friend-info h3 { margin: 0; font-size: 1.5rem; background: linear-gradient(to right, #fff, #00C6FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.friend-info p { margin: 5px 0 0; font-size: 1rem; color: #ccc; }
-
 .card-spotify { grid-area: spotify; background: #191414; border-color: rgba(29, 185, 84, 0.3); flex-direction: row !important; justify-content: flex-start !important; align-items: center !important; gap: 20px; padding: 1.5rem !important; position: relative; }
 .spotify-header { position: absolute; top: 12px; right: 18px; left: auto; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; gap: 5px; opacity: 0.8; }
 .spotify-content { display: flex; flex-direction: row; align-items: center; text-align: left; gap: 20px; width: 100%; }
@@ -176,25 +183,49 @@ body:hover .cursor-outline.hovered { width: 60px; height: 60px; background: rgba
 #volume-slider { width: 100%; height: 5px; border-radius: 5px; -webkit-appearance: none; background: rgba(255,255,255,0.2); }
 #volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
 
-/* --- 🔥 FIXED PRELOADER CSS 🔥 --- */
-#preloader { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: #050505; z-index: 9999; 
-    display: flex; justify-content: center; align-items: center; /* จัดกึ่งกลางหลัก */
-    transition: 0.8s; 
+/* 🔥 FRIEND CARD (Custom Design) 🔥 */
+.card-friend {
+    grid-area: friend;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column !important;
+    gap: 0 !important;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 1px solid rgba(0, 198, 255, 0.3) !important;
+    text-decoration: none; color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
-.loader-content { 
-    display: flex; 
-    flex-direction: column; /* เรียงลงแนวตั้ง */
-    align-items: center; /* จัดกึ่งกลางแนวนอน */
-    justify-content: center; /* จัดกึ่งกลางแนวตั้ง */
-    width: 100%; 
-    text-align: center; /* บังคับ text ให้อยู่กลาง */
+.card-friend:hover {
+    border-color: var(--friend-accent) !important;
+    box-shadow: 0 10px 30px rgba(0, 198, 255, 0.25);
+    transform: translateY(-5px);
 }
-.loader-logo { width: 150px; animation: breathe 2s infinite; margin-bottom: 20px; }
-.loading-bar-box { width: 250px; height: 4px; background: #333; border-radius: 2px; overflow: hidden; margin-top: 10px; }
-.loading-bar { width: 0; height: 100%; background: var(--accent); transition: width 0.1s linear; }
-.loading-text { margin-top: 10px; color: var(--text-sub); font-family: 'JetBrains Mono'; letter-spacing: 2px; }
+.friend-banner-box {
+    width: 100%;
+    height: 80px; /* ครึ่งบน */
+    overflow: hidden;
+    position: relative;
+    background: #222;
+}
+.friend-banner-img { width: 100%; height: 100%; object-fit: cover; }
+.friend-content {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+}
+.friend-avatar-img {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    border: 3px solid var(--bg-color);
+    margin-top: -40px; /* ดันขึ้นไปทับแบนเนอร์ */
+    background: #000;
+    z-index: 2;
+}
+.friend-text h3 { margin: 0; font-size: 1.2rem; font-weight: bold; }
+.friend-text p { margin: 0; font-size: 0.85rem; color: #bbb; }
 
 .lang-switch { position: absolute; top: -50px; right: 0; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 10px; border: 1px solid #333; display: flex; gap: 5px; }
 .lang-btn { background: none; border: none; color: #aaa; padding: 5px 12px; cursor: pointer; border-radius: 6px; transition: 0.3s; }

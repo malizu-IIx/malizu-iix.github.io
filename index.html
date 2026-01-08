@@ -8,31 +8,37 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <canvas id="snow-canvas"></canvas>
+
+    <div id="intro-layer">
+        <div class="marquee-wrapper">
+            <div class="marquee-row">
+                <div class="marquee-text">WELCOME TO MY WORLD &nbsp; ● &nbsp; MALIZU ONLINE &nbsp; ● &nbsp; FULL STACK DEV &nbsp; ● &nbsp; WELCOME TO MY WORLD &nbsp; ● &nbsp; MALIZU ONLINE &nbsp; ● &nbsp; FULL STACK DEV &nbsp; ● &nbsp;</div>
+            </div>
+            <div class="marquee-row reverse">
+                <div class="marquee-text outline">CREATIVE &nbsp; ● &nbsp; INNOVATIVE &nbsp; ● &nbsp; PASSIONATE &nbsp; ● &nbsp; CODING &nbsp; ● &nbsp; CREATIVE &nbsp; ● &nbsp; INNOVATIVE &nbsp; ● &nbsp; PASSIONATE &nbsp; ● &nbsp; CODING &nbsp; ● &nbsp;</div>
+            </div>
+        </div>
+        <div class="enter-container">
+            <button id="enter-btn">
+                <span class="btn-text">INITIALIZE SYSTEM</span>
+                <div class="btn-shine"></div>
+            </button>
+            <p class="intro-hint">Click to start experience</p>
+        </div>
+    </div>
+
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
     <audio id="theme-audio" loop><source src="theme_music.mp3" type="audio/mp3"></audio>
 
-    <div id="preloader">
-        <div class="loader-content">
-            <img src="IIX_logo.png" alt="IIX Logo" class="loader-logo">
-            <div class="loading-bar-box"><div class="loading-bar" id="loading-bar"></div></div>
-            <p class="loading-text">INITIALIZING...</p>
-        </div>
-    </div>
-
     <div class="container" id="main-content">
-        <div class="lang-switch">
-            <button class="lang-btn active" id="btn-en">EN</button>
-            <button class="lang-btn" id="btn-th">TH</button>
-            <button class="lang-btn" id="btn-jp">JP</button>
-        </div>
-
         <div class="card card-profile tilt-card" style="--delay: 0.1s">
             <div class="banner-container"><img id="user-banner" src="" class="banner-img" alt="Banner"></div>
             <div class="profile-content">
@@ -46,7 +52,7 @@
                         <h1 id="global-name">Loading...</h1>
                         <div class="username-box" onclick="copyDiscordID()">
                             <span id="username">@...</span>
-                            <div id="copy-tooltip" class="tooltip" data-i18n="copied">Copied!</div>
+                            <div id="copy-tooltip" class="tooltip">Copied!</div>
                         </div>
                         <div class="badges-row" id="badge-container"></div>
                     </div>
@@ -63,13 +69,13 @@
         </div>
 
         <div class="card card-social tilt-card" style="--delay: 0.3s">
-            <h3 data-i18n="connect">Connect</h3>
+            <h3>Connect</h3>
             <div class="social-grid" id="social-grid"></div>
         </div>
 
         <div class="card card-tech tilt-card" style="--delay: 0.4s">
-            <h3 data-i18n="tech_stack">Tech Stack</h3>
-            <p class="tech-subtitle" data-i18n="tech_subtitle">Full-Stack Developer in training.</p>
+            <h3>Tech Stack</h3>
+            <p class="tech-subtitle">Full-Stack Developer in training.</p>
             <div class="tech-list">
                 <i class="fa-brands fa-html5 tech-icon"></i>
                 <i class="fa-brands fa-css3-alt tech-icon"></i>
@@ -79,7 +85,7 @@
                 <i class="fa-brands fa-github tech-icon"></i>
             </div>
             <div class="review-container">
-                <span class="review-label" id="like-text">Loading...</span>
+                <span class="review-label" id="like-text">Loading stats...</span>
                 <button class="like-btn" id="like-btn">
                     <i class="fa-regular fa-heart" id="like-icon"></i>
                     <span id="like-count">0</span>
@@ -90,7 +96,7 @@
         <div class="card card-stats tilt-card" style="--delay: 0.5s">
             <div>
                 <i class="fa-solid fa-earth-asia" style="font-size: 2.5rem; color: var(--accent);"></i>
-                <h3 style="margin-top:15px;" data-i18n="location">Thailand</h3>
+                <h3 style="margin-top:15px;">Thailand</h3>
                 <p class="time-text" id="local-time">--:--</p>
             </div>
         </div>
@@ -99,15 +105,20 @@
             <div class="weather-icon"><i class="fa-solid fa-cloud-sun"></i></div>
             <div class="weather-info">
                 <h2 id="temp">--°C</h2>
-                <p id="weather-desc" data-i18n="weather_desc">Bangkok</p>
+                <p id="weather-desc">Bangkok</p>
             </div>
         </div>
 
         <a href="https://nattapat2871.me/" target="_blank" class="card card-friend tilt-card" style="--delay: 0.7s">
-            <div class="friend-logo">N</div>
-            <div class="friend-info">
-                <h3 data-i18n="friend_title">My Friend</h3>
-                <p data-i18n="friend_subtitle">Nattapat's Portfolio <i class="fa-solid fa-arrow-up-right-from-square"></i></p>
+            <div class="friend-banner-box">
+                <img id="friend-banner" src="" alt="Friend Banner" class="friend-banner-img" onerror="this.style.display='none'">
+            </div>
+            <div class="friend-content">
+                <img id="friend-avatar" src="" alt="N" class="friend-avatar-img">
+                <div class="friend-text">
+                    <h3 id="friend-name">My Friend</h3>
+                    <p>Nattapat's Portfolio <i class="fa-solid fa-arrow-up-right-from-square"></i></p>
+                </div>
             </div>
         </a>
 
@@ -125,8 +136,8 @@
             <div class="theme-content">
                 <div class="theme-art"><i class="fa-solid fa-music"></i></div>
                 <div class="theme-info-box">
-                    <h4 data-i18n="music_title">Theme Music</h4>
-                    <p data-i18n="music_subtitle">Background Vibes</p>
+                    <h4>Theme Music</h4>
+                    <p>Background Vibes</p>
                     <div class="theme-controls">
                         <button class="play-btn" id="play-btn"><i class="fa-solid fa-play"></i></button>
                         <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
@@ -134,11 +145,9 @@
                 </div>
             </div>
         </div>
-
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
