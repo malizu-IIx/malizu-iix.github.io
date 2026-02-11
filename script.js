@@ -165,17 +165,32 @@ function updateMainProfile(data) {
     const activities = root.activities || [];
     const discordStatus = root.discord_status;
     
-    // 1. Profile Data (Banner/Avatar)
-    if (root.user && root.user_profile) {
-        const user = root.user;
-        const profile = root.user_profile;
-        const bannerEl = document.getElementById('user-banner');
-        if(profile.banner && bannerEl) bannerEl.src = `https://cdn.discordapp.com/banners/${user.id}/${profile.banner}.${profile.banner.startsWith("a_")?"gif":"png"}?size=512`;
-        document.getElementById('global-name').innerText = user.global_name || "MALizU";
-        document.getElementById('username').innerText = `@${user.username}`;
-        document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
-        document.getElementById('bio').innerText = profile.bio || profile.pronouns || "";
+   // 1. Profile Data (Banner/Avatar)
+if (root.user && root.user_profile) {
+    const user = root.user;
+    const profile = root.user_profile;
+    const bannerEl = document.getElementById('user-banner');
+    const bannerContainer = document.querySelector('.banner-container'); // เพิ่มตัวแปรจับ container
+
+    if (bannerEl) {
+        if (profile.banner) {
+            // กรณีมีรูป Banner
+            bannerEl.style.display = 'block';
+            bannerEl.src = `https://cdn.discordapp.com/banners/${user.id}/${profile.banner}.${profile.banner.startsWith("a_") ? "gif" : "png"}?size=512`;
+        } else {
+            // กรณีไม่มีรูป Banner (ให้ซ่อน img แล้วใส่สีพื้นหลังที่กล่องแทน)
+            bannerEl.style.display = 'none';
+            if (bannerContainer) {
+                bannerContainer.style.backgroundColor = profile.banner_color || "#1a1a1a"; // ใช้สีจาก Discord หรือสีดำ Default
+            }
+        }
     }
+
+    document.getElementById('global-name').innerText = user.global_name || "MALizU";
+    document.getElementById('username').innerText = `@${user.username}`;
+    document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
+    document.getElementById('bio').innerText = profile.bio || profile.pronouns || "";
+}
 
     // 2. Status Color
     const statusColors = { online: "#3ba55c", idle: "#faa61a", dnd: "#ed4245", offline: "#747f8d" };
