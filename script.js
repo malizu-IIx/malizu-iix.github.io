@@ -134,7 +134,7 @@ function initDualWebSockets() {
 }
 
 function connectWS(userId, type) {
-    const ws = new WebSocket(`wss://api.ame.nattapat2871.me/ws/v1/user/${userId}`);
+    const ws = new WebSocket(`wss://ame-api.nattapat2871.me/ws/v1/user/${userId}`);
 
     ws.onopen = () => { console.log(`🟢 WS Connected: ${type}`); };
     
@@ -329,7 +329,7 @@ function initIntroLogic() {
 }
 
 // --- STATS API ---
-const API_BASE = 'https://api.ame.nattapat2871.me';
+const API_BASE = 'https://ame-api.nattapat2871.me';
 const SITE_DOMAIN = 'malizu.online'; 
 
 async function initSiteStats() {
